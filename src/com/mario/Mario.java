@@ -1,0 +1,404 @@
+package com.mario;
+
+import java.awt.Image;
+import java.awt.Rectangle;
+import javax.swing.ImageIcon;
+
+import com.role.*;
+import com.ui.GameFrame;
+
+//自己的角色类
+public class Mario extends Thread {
+	
+	public GameFrame gf;
+
+	//地图的左右边界
+	public int mapLeft=0,mapRight=2000;
+	//是否可以jump
+	public boolean jumpFlag=true;
+	//重力加速度
+	public double g=0.15;
+	//马里奥的坐标
+	public int x=180,y=200;
+	//马里奥的速度
+	public double xspeed=5 , yspeed=6;
+	//马里奥的宽高
+	public int width=25,height=30;
+	//马里奥的图片
+	public Image img = new ImageIcon("image/mari1.png").getImage();
+	//马里奥朝左还是朝右
+	public boolean isFaceRight=true;
+	//马里奥是否变大
+	public boolean isBig=false;
+	//马里奥的金币数量
+	public int coinNum = 0;
+	//马里奥是否死亡
+	public boolean isDead = false;
+	
+	public boolean left=false,right=false,down=false,up=false;
+	
+	public String Dir_Up="Up",Dir_Left="Left",Dir_Right="Right",Dir_Down="Down";
+	
+	
+	public Mario (GameFrame gf) {
+		this.gf = gf;
+		this.Gravity();
+	}
+	//重生
+	public void  revive(){
+		isDead=false;
+		coinNum=0;
+		jumpFlag=true;
+		isBig=false;
+		width=25;
+		height=30;
+		this.x=200;
+		this.y=180;
+		//背景归位
+		gf.bg.x=0;
+		//重新加载地图
+		gf.relodeMap();
+	}
+
+	// 玛丽移动的逻辑在这里
+	public void run(){
+		while(true){
+
+			//向左走
+			if(left){
+				isFaceRight=false;
+				//碰撞到了
+				if(hit(Dir_Left)){
+					this.xspeed=0;
+				}
+
+				//任人物向左移动
+				if(this.x>=200){
+					this.x-=this.xspeed;
+					this.img=new ImageIcon("image/mari_left.gif").getImage();
+				}
+
+				if(this.x<200){
+					if (gf.bg.x<mapLeft) {
+						//背景向右移动
+						gf.bg.x += this.xspeed;
+						//障碍物项右移动
+						for (int i = 0; i < gf.enemyList.size(); i++) {
+							Enemy enemy = gf.enemyList.get(i);
+							enemy.x += this.xspeed;
+						}
+						this.img = new ImageIcon("image/mari_left.gif").getImage();
+					}else{
+						if (x>=0) {
+							this.x -= this.xspeed;
+							this.img = new ImageIcon("image/mari_left.gif").getImage();
+						}
+					}
+				}
+
+				
+				this.xspeed=5;
+			}
+			
+			//向右走
+			else if(right){
+				isFaceRight=true;
+				// 右边碰撞物检测应该是往右走的时候检测
+				// 进行碰撞检测：至少主角（玛丽，碰撞物）
+				if(hit(Dir_Right)){
+					this.xspeed=0;
+				}
+
+				//任人物向右移动
+				if(this.x<550){
+					this.x += this.xspeed;
+					this.img=new ImageIcon("image/mari_right.gif").getImage();
+				}
+				
+				if(this.x>=550){
+					if ((800-gf.bg.x)<mapRight) {
+						//背景向左移动
+						gf.bg.x -= this.xspeed;
+						//障碍物项左移动
+						for (int i = 0; i < gf.enemyList.size(); i++) {
+							Enemy enemy = gf.enemyList.get(i);
+							enemy.x -= this.xspeed;
+						}
+						this.img = new ImageIcon("image/mari_right.gif").getImage();
+					}else{
+						if (x<=770){
+							this.x += this.xspeed;
+							this.img=new ImageIcon("image/mari_right.gif").getImage();
+						}
+					}
+				}
+				this.xspeed=5;
+			}else {//即没有向左走，右没向右走
+				hit(Dir_Right);
+				hit(Dir_Left);
+			}
+			
+			//向上跳
+			if(up){
+
+				if(jumpFlag){
+					jumpFlag=false;
+					new Thread(){
+						public void run(){
+							jump(yspeed);
+							jumpFlag=true;
+						}
+					}.start();
+				}
+
+			}
+			
+			try {
+				this.sleep(20);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	//向上跳的函数
+	public void jump(double speed){
+
+		for (int i = 0; i < 1000; i++) {
+			//碰撞检测一定要在移动之前
+			if(hit(Dir_Up))break;
+			//模拟重力加速度
+			speed=((speed-g)<0?0:(speed-g));
+
+			gf.mario.y-=speed;
+			if(hit(Dir_Up))break;
+			if (speed<=0)break;
+
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		//为了构造反弹效果，所以speed与碰撞之间相等但反向
+		for (int i = 0; i <1000; i++) {
+			if (gf.mario.y>600){
+				gf.mario.isDead=true;
+				break;
+			}
+			if(hit(Dir_Down))break;
+			speed+=g;
+
+			speed=speed>5?5:speed;
+			gf.mario.y+=speed;
+			if(hit(Dir_Down))break;
+
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+	}
+
+	//检测碰撞
+	public boolean hit(String dir){
+
+		Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.height);
+
+		Rectangle rect =null;
+		
+		for (int i = 0; i < gf.enemyList.size(); i++) {
+			Enemy enemy = gf.enemyList.get(i);
+			if (enemy==null) return false;
+			if(dir.equals("Left")){
+				rect = new Rectangle(enemy.x+5,enemy.y,enemy.width,enemy.height);
+			}else if(dir.equals("Right")){
+				rect = new Rectangle(enemy.x-5,enemy.y,enemy.width,enemy.height);
+			}else if(dir.equals("Up")){
+				rect = new Rectangle(enemy.x,enemy.y+5,enemy.width,enemy.height);
+			}else if(dir.equals("Down")){
+				rect = new Rectangle(enemy.x,enemy.y-5,enemy.width,enemy.height);
+			}
+			//碰撞检测
+			if(myrect.intersects(rect)){
+				//碰到到是蘑菇，第一次变大，第二次变小
+				if (enemy.getClass() == Mashroom.class){
+					if (isBig){
+						gf.enemyList.remove(enemy);
+						isBig=false;
+						width=25;
+						height=30;
+					}else {
+						gf.enemyList.remove(enemy);
+						isBig=true;
+						y-=6;
+						width=30;
+						height=36;
+					}
+				}
+				//碰到的是金币砖块
+				else if (dir.equals("Up")&&enemy.getClass() == CoinBrick.class){
+					if (!((CoinBrick) enemy).isOpen) {
+						((CoinBrick) enemy).isOpen=true;
+						enemy.setImg(new ImageIcon("image/coin_brick_null.png").getImage());
+						Coin coin = new Coin(enemy.x+4,enemy.y-10,22,30,new ImageIcon("image/coin.png").getImage());
+						gf.enemyList.add(coin);
+
+						for (int j=0;j<10;j++){
+							try {
+								sleep(10);
+							}catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							coin.y-=2;
+						}
+					}
+				}
+				//碰到金币
+				else if (enemy.getClass() == Coin.class){
+					gf.enemyList.remove(enemy);
+					coinNum++;
+				}
+				//从左右碰到乌龟，乌龟是活的，马里奥也是活的，马里奥才能死
+				else if ((!gf.mario.isDead)&&enemy.getClass() == Turtle.class&&(dir.equals(Dir_Left)||dir.equals(Dir_Right))&&!((Turtle) enemy).isDead){
+					gf.mario.isDead=true;
+					deadMove(2);
+				}
+				//从上方碰到乌龟，乌龟是活的，马里奥也是活的，乌龟才能死
+				else if ((!gf.mario.isDead)&&enemy.getClass() == Turtle.class&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
+					((Turtle) enemy).isDead=true;
+					deadMove(enemy,2);
+				}
+
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	//马里奥死亡动画
+	public void deadMove(double speed){
+		//无碰撞检测
+		for (int i = 0; i < 1000; i++) {
+			//模拟重力加速度
+			speed=((speed-g)<0?0:(speed-g));
+
+			gf.mario.y-=speed;
+			if (speed<=0)break;
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		for (int i = 0; i <1000; i++) {
+			speed+=g;
+
+			speed=speed>5?5:speed;
+			gf.mario.y+=speed;
+			if (gf.mario.y>450)break;
+			if (!gf.mario.isDead)break;
+
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	//动物死亡动画
+	public void deadMove(Enemy e,double speed){
+		//无碰撞检测
+		for (int i = 0; i < 1000; i++) {
+			//模拟重力加速度
+			speed=((speed-g)<0?0:(speed-g));
+
+			e.y-=speed;
+			if (speed<=0)break;
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException k) {
+				k.printStackTrace();
+			}
+		}
+		for (int i = 0; i <1000; i++) {
+			speed+=g;
+
+			speed=speed>5?5:speed;
+			e.y+=speed;
+			if (e.y>450) break;
+
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException k) {
+				k.printStackTrace();
+			}
+		}
+		gf.enemyList.remove(e);
+	}
+
+	//重力线程
+	public void Gravity(){
+			new Thread(){
+				public void run(){
+					
+					while(true){
+						try {
+							sleep(10);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						
+
+						while(true){
+							if(!jumpFlag){
+								break;
+							}
+							
+							if(hit(Dir_Down)){
+								break;
+							}
+
+
+							double speed = 0;
+							while (true){
+								if (gf.mario.y>600){
+									gf.mario.isDead=true;
+									break;
+								}
+								if(!jumpFlag){
+									break;
+								}
+								speed += g;
+								speed=speed>5?5:speed;
+								gf.mario.y += speed;
+								if (hit(Dir_Down)) break;
+								try {
+									Thread.sleep(10);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+
+
+							try {
+								sleep(10);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+
+				}
+			}.start();
+	
+	}
+
+
+}
