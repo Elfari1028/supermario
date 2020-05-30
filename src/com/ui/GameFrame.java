@@ -145,6 +145,9 @@ public class GameFrame extends JFrame{
 				Color c = big.getColor();
 				big.setColor(Color.yellow);
 				big.fillOval(b.x+=b.speed, b.y, b.width, b.width);
+				if (b.hit("Left")||b.hit("Right")){
+					boomList.remove(b);
+				}
 				big.setColor(c);
 			}
 

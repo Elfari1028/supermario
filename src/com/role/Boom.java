@@ -22,4 +22,29 @@ public class Boom {
 		this.gf = gf;
 	}
 
+	public boolean hit(String dir){
+
+		Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.width);
+
+		Rectangle rect =null;
+
+		//检测是否碰到障碍物，碰到的不是敌人!!
+		for (int i = 0; i < gf.enemyList.size(); i++) {
+			Enemy enemy = gf.enemyList.get(i);
+			if (enemy.getClass()==Turtle.class) return false;
+			if (enemy==null) return false;
+			if(dir.equals("Left")){
+				rect = new Rectangle(enemy.x+5,enemy.y,enemy.width,enemy.height);
+			}else if(dir.equals("Right")){
+				rect = new Rectangle(enemy.x-5,enemy.y,enemy.width,enemy.height);
+			}
+
+			if(myrect.intersects(rect)){
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 }
