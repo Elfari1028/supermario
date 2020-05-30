@@ -15,8 +15,8 @@ import com.util.MusicUtil;
 public class GameFrame extends JFrame{
 	// 超级玛丽:界面需要一个超级玛丽的。
 	public Mario mario;
-	// 分别定义:水管，金币,砖块，蘑菇
-	public Enemy pipe ,cionBrick , brick,mashroom,turtle;
+	// 分别定义:水管，金币,砖块，蘑菇，地刺
+	public Enemy pipe,cionBrick,brick,mashroom,turtle,trap;
 	//背景图片
 	public BackgroundImage bg ;
 	//定义一个集合容器装敌人对象
@@ -24,7 +24,7 @@ public class GameFrame extends JFrame{
 	//定义一个集合容器装子弹
 	public ArrayList<Boom> boomList = new ArrayList<Boom>();
 
-	//地图数据，制定规则，是1画砖头，是2画金币，是3画水管,4是蘑菇
+	//地图数据，制定规则，是1画砖头，是2画金币，是3画水管,4是蘑菇,5是乌龟,6是地刺
 	public int[][] map = null;
 	{
 		// 实例代码块中初始化地图资源的数据
@@ -84,6 +84,7 @@ public class GameFrame extends JFrame{
 
 	public void relodeMap(){
 		enemyList.clear();
+		boomList.clear();
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
 				//读取到的是1，画砖头
@@ -112,6 +113,11 @@ public class GameFrame extends JFrame{
 					enemyList.add(turtle);
 					((Turtle)turtle).move();
 				}
+				//读到6画地刺
+				if (map[i][j]==6){
+					trap = new Trap(j*30,i*30+15,30,15,new ImageIcon("image/trap.png").getImage());
+					enemyList.add(trap);
+				}
 			}
 		}
 	}
@@ -138,7 +144,7 @@ public class GameFrame extends JFrame{
 				Boom b = boomList.get(i);
 				Color c = big.getColor();
 				big.setColor(Color.yellow);
-				big.fillOval(b.x += b.speed, b.y, b.width, b.width);
+				big.fillOval(b.x+=b.speed, b.y, b.width, b.width);
 				big.setColor(c);
 			}
 

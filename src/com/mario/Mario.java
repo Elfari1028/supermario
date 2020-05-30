@@ -42,7 +42,7 @@ public class Mario extends Thread {
 	
 	public Mario (GameFrame gf) {
 		this.gf = gf;
-		this.Gravity();
+		this.gravity();
 	}
 	//重生
 	public void  revive(){
@@ -63,7 +63,14 @@ public class Mario extends Thread {
 	// 玛丽移动的逻辑在这里
 	public void run(){
 		while(true){
-
+			if (isDead){
+				try {
+					this.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				continue;
+			}
 			//向左走
 			if(left){
 				isFaceRight=false;
@@ -143,6 +150,7 @@ public class Mario extends Thread {
 
 				if(jumpFlag){
 					jumpFlag=false;
+					//为了实现在空中也能左右移动
 					new Thread(){
 						public void run(){
 							jump(yspeed);
@@ -270,7 +278,12 @@ public class Mario extends Thread {
 				//从上方碰到乌龟，乌龟是活的，马里奥也是活的，乌龟才能死
 				else if ((!gf.mario.isDead)&&enemy.getClass() == Turtle.class&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
 					((Turtle) enemy).isDead=true;
-					deadMove(enemy,2);
+					((Turtle) enemy).deadMove(2);
+				}
+				//活的马里奥碰到地刺，无论从那个方向，就死亡
+				else if((!gf.mario.isDead)&&enemy.getClass() == Trap.class){
+					gf.mario.isDead=true;
+					deadMove(2);
 				}
 
 				return true;
@@ -312,39 +325,8 @@ public class Mario extends Thread {
 		}
 	}
 
-	//动物死亡动画
-	public void deadMove(Enemy e,double speed){
-		//无碰撞检测
-		for (int i = 0; i < 1000; i++) {
-			//模拟重力加速度
-			speed=((speed-g)<0?0:(speed-g));
-
-			e.y-=speed;
-			if (speed<=0)break;
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException k) {
-				k.printStackTrace();
-			}
-		}
-		for (int i = 0; i <1000; i++) {
-			speed+=g;
-
-			speed=speed>5?5:speed;
-			e.y+=speed;
-			if (e.y>450) break;
-
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException k) {
-				k.printStackTrace();
-			}
-		}
-		gf.enemyList.remove(e);
-	}
-
 	//重力线程
-	public void Gravity(){
+	public void gravity(){
 			new Thread(){
 				public void run(){
 					

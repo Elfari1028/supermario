@@ -46,7 +46,7 @@ public class KeyListener extends KeyAdapter{
 	
 	//Ìí¼Ó×Óµ¯
 	public void addBoom() {	
-		Boom b = new Boom(gf.mario.x,gf.mario.y+5,10);
+		Boom b = new Boom(gf.mario.x,gf.mario.y+5,10,gf);
 		b.speed = gf.mario.isFaceRight?4:-4;
 		gf.boomList.add(b);
 	}
