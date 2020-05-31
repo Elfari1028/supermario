@@ -20,7 +20,6 @@ public class KeyListener extends KeyAdapter{
 	}
 	
 	//¼üÅÌ¼àÌı
-	@Override
 	public void keyPressed(KeyEvent e) {
 		int code = e.getKeyCode();
 		switch(code){
@@ -52,7 +51,6 @@ public class KeyListener extends KeyAdapter{
 	}
 
 	//¼üÅÌÊÍ·Å¼àÌı
-	@Override
 	public void keyReleased(KeyEvent e) {
 		int code=e.getKeyCode();
 		if(code==39){

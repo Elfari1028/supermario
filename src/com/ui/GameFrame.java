@@ -16,7 +16,7 @@ public class GameFrame extends JFrame{
 	// 超级玛丽:界面需要一个超级玛丽的。
 	public Mario mario;
 	// 分别定义:水管，金币,砖块，蘑菇，地刺
-	public Enemy pipe,cionBrick,brick,mashroom,turtle,trap;
+	public Enemy mud,pipe,cionBrick,brick,mashroom,turtle,trap,bee;
 	//背景图片
 	public BackgroundImage bg ;
 	//定义一个集合容器装敌人对象
@@ -53,7 +53,8 @@ public class GameFrame extends JFrame{
 		// 读取地图，并配置地图
 		relodeMap();
 
-		mario.start();
+		// 马里奥开始移动
+		mario.run();
 
 		//开启一个线程负责界面的窗体重绘线程
 		new Thread(){
@@ -74,55 +75,71 @@ public class GameFrame extends JFrame{
 
 
 		//设置背景音乐
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				MusicUtil.playBackground();
-			}
-		}).start();
+//		new Thread(new Runnable() {
+//			@Override
+//			public void run() {
+//				MusicUtil.playBackground();
+//			}
+//		}).start();
 	}
 
 	public void relodeMap(){
+
+		for(Enemy e:enemyList) {
+			e.isDead = true;
+		}
+
 		enemyList.clear();
 		boomList.clear();
+
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
-				//读取到的是1，画砖头
+				//读到1，画泥土
 				if(map[i][j]==1){
+					mud = new Mud(j*30,i*30,30,30,new ImageIcon("image/mud.jpeg").getImage());
+					enemyList.add(mud);
+				}
+				//读取到的是2，画砖头
+				if(map[i][j]==2){
 					brick = new Brick(j*30,i*30,30,30,new ImageIcon("image/brick.png").getImage());
 					enemyList.add(brick);
 				}
-				//读到2画金币砖块
-				if(map[i][j]==2){
+				//读到3画金币砖块
+				if(map[i][j]==3){
 					cionBrick = new CoinBrick(j*30,i*30,30,30,new ImageIcon("image/coin_brick.png").getImage());
 					enemyList.add(cionBrick);
 				}
-				//读到3画水管
-				if(map[i][j]==3){
+				//读到4画水管
+				if(map[i][j]==4){
 					pipe = new Pipe(j*30,i*30,60,120,new ImageIcon("image/pipe.png").getImage());
 					enemyList.add(pipe);
 				}
-				//读到4画蘑菇
-				if (map[i][j]==4){
+				//读到5画蘑菇
+				if (map[i][j]==5){
 					mashroom = new Mashroom(j*30+5,i*30+10,20,20,new ImageIcon("image/mogu.png").getImage());
 					enemyList.add(mashroom);
 				}
-				//读到5画乌龟
-				if (map[i][j]==5){
+				//读到6画乌龟
+				if (map[i][j]==6){
 					turtle = new Turtle(j*30,i*30,30,30,2.5,new ImageIcon("image/turtle.png").getImage(),this);
 					enemyList.add(turtle);
 					((Turtle)turtle).move();
 				}
-				//读到6画地刺
-				if (map[i][j]==6){
+				//读到7画地刺
+				if (map[i][j]==7){
 					trap = new Trap(j*30,i*30+15,30,15,new ImageIcon("image/trap.png").getImage());
 					enemyList.add(trap);
+				}
+				//读到8画蜜蜂
+				if (map[i][j]==8){
+					bee = new Bee(j*30,i*30,30,30,2,150,new ImageIcon("image/bee.png").getImage(),this);
+					enemyList.add(bee);
+					((Bee)bee).move();
 				}
 			}
 		}
 	}
 
-	@Override
 	public void paint(Graphics g) {
 		try {
 			//利用双缓冲画背景图片和马里奥
@@ -145,9 +162,7 @@ public class GameFrame extends JFrame{
 				Color c = big.getColor();
 				big.setColor(Color.yellow);
 				big.fillOval(b.x+=b.speed, b.y, b.width, b.width);
-				if (b.hit("Left")||b.hit("Right")){
-					boomList.remove(b);
-				}
+				if(b.hit("Left")||b.hit("Right"))boomList.remove(b);
 				big.setColor(c);
 			}
 
@@ -172,7 +187,9 @@ public class GameFrame extends JFrame{
 			}
 
 			g.drawImage(bi, 0, 0, null);
-		}catch (Exception e){}
+		}catch (Exception e){
+			System.out.println("Loading map...");
+		}
 
 	}
 

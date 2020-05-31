@@ -1,30 +1,43 @@
 package com.role;
-
 import com.ui.GameFrame;
 
+import javax.swing.*;
 import java.awt.*;
 
-public class Turtle extends Enemy {
+public class Bee extends Enemy{
     public double g=0.15;
     double speed;
+    //range是蜜蜂飞翔的范围
+    int range;
+    //记录移动距离
+    int moveDistance=0;
     GameFrame gf;
-    public Turtle(int x, int y, int width, int height, double speed,Image img,GameFrame gf) {
+    //生命值，默认都为3
+    public int life = 3;
+
+    public Bee(int x, int y, int width, int height, double speed,int range,Image img,GameFrame gf) {
         super(x, y, width,height, img);
         this.speed = speed;
-        this.gf = gf;
+        this.range = range;
+        this.gf=gf;
     }
 
     //移动线程
     public void move(){
         new Thread(){
             public void run(){
+
                 while (true){
                     if (isDead)return;
-                    if (hit("Right")){
+                    hit("Right");
+                    if (moveDistance>=range&&speed>0){
+                        speed = -speed;
+                    }else if(moveDistance<=0&&speed<0){
                         speed = -speed;
                     }
 
                     x+=speed;
+                    moveDistance+=speed;
                     try {
                         this.sleep(20);
                     } catch (InterruptedException e) {
@@ -35,28 +48,38 @@ public class Turtle extends Enemy {
         }.start();
     }
 
-    //检测碰撞
+    //碰撞函数
     public boolean hit(String dir){
+
         Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.height);
 
         Rectangle rect =null;
 
-            //乌龟只能被踩死
-//        //判断是否和子弹相撞
-//        for (Boom b : gf.boomList){
-//            if(dir.equals("Left")){
-//                rect = new Rectangle(b.x+5,b.y,b.width,b.width);
-//            }else if(dir.equals("Right")) {
-//                rect =  new Rectangle(b.x-5,b.y,b.width,b.width);
-//            }
-//            //如果活的乌龟碰到子弹，死
-//            if (myrect.intersects(rect)&&!isDead){
-//                gf.boomList.remove(b);
-//                isDead = true;
-//                deadMove(2);
-//                return true;
-//            }
-//        }
+        //判断是否和子弹相撞
+        for (Boom b : gf.boomList){
+
+            if (dir.equals("Left")) {
+                rect = new Rectangle(b.x + 5, b.y, b.width, b.width);
+            } else if (dir.equals("Right")) {
+                rect = new Rectangle(b.x - 5, b.y, b.width, b.width);
+            }
+
+            //如果活的bee碰到子弹，减去一条命
+            if (myrect.intersects(rect)){
+                if (life>1) {
+                    gf.boomList.remove(b);
+                    life--;
+                    deadMove();
+                    return true;
+                }else {
+                    gf.boomList.remove(b);
+                    isDead=true;
+                    life--;
+                    deadMove(2);
+                    return true;
+                }
+            }
+        }
 
         //判断是否和其他障碍物相撞
         for (int i = 0; i < gf.enemyList.size(); i++) {
@@ -106,6 +129,16 @@ public class Turtle extends Enemy {
             }
         }
         gf.enemyList.remove(this);
+
     }
 
+    public void deadMove(){
+        this.setImg(new ImageIcon("image/bee_hurt.png").getImage());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException k) {
+            k.printStackTrace();
+        }
+        this.setImg(new ImageIcon("image/bee.png").getImage());
+    }
 }
