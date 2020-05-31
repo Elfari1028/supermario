@@ -24,7 +24,7 @@ public class GameFrame extends JFrame{
 	//定义一个集合容器装子弹
 	public ArrayList<Boom> boomList = new ArrayList<Boom>();
 
-	//地图数据，制定规则，是1画砖头，是2画金币，是3画水管,4是蘑菇,5是乌龟,6是地刺
+	//地图数据
 	public int[][] map = null;
 	{
 		// 实例代码块中初始化地图资源的数据
@@ -160,9 +160,19 @@ public class GameFrame extends JFrame{
 			for (int i = 0; i < boomList.size(); i++) {
 				Boom b = boomList.get(i);
 				Color c = big.getColor();
-				big.setColor(Color.yellow);
-				big.fillOval(b.x+=b.speed, b.y, b.width, b.width);
-				if(b.hit("Left")||b.hit("Right"))boomList.remove(b);
+				if (b instanceof Beeboom){
+					Beeboom bb = (Beeboom)b;
+					bb.x+=bb.xspeed;
+					bb.yspeed+=0.15;
+					bb.y+=bb.yspeed;
+					big.setColor(Color.black);
+					big.fillOval(bb.x, bb.y, bb.width, bb.width);
+				}else {
+					big.setColor(Color.yellow);
+					big.fillOval(b.x+=b.speed, b.y, b.width, b.width);
+				}
+
+				if(b.hit())boomList.remove(b);
 				big.setColor(c);
 			}
 
@@ -197,7 +207,7 @@ public class GameFrame extends JFrame{
 	public void checkBoom(){
 		for (int i = 0; i < boomList.size(); i++) {
 			Boom b = boomList.get(i);
-			if(b.x<0 || b.x>800){
+			if(b.x<0 || b.x>800||b.y>450){
 				boomList.remove(i);
 			}
 		}

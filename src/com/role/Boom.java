@@ -15,14 +15,13 @@ public class Boom {
 	GameFrame gf;
 	
 	public Boom(int x, int y, int width,GameFrame gf) {
-		super();
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.gf = gf;
 	}
 
-	public boolean hit(String dir){
+	public boolean hit(){
 
 		Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.width);
 
@@ -33,11 +32,8 @@ public class Boom {
 			Enemy enemy = gf.enemyList.get(i);
 			if (enemy.getClass()==Bee.class)continue;
 			if (enemy==null) return false;
-			if(dir.equals("Left")){
-				rect = new Rectangle(enemy.x+5,enemy.y,enemy.width,enemy.height);
-			}else if(dir.equals("Right")){
-				rect = new Rectangle(enemy.x-5,enemy.y,enemy.width,enemy.height);
-			}
+
+			rect = new Rectangle(enemy.x,enemy.y,enemy.width,enemy.height);
 
 			if(myrect.intersects(rect)){
 				return true;

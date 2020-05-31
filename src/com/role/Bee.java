@@ -26,7 +26,8 @@ public class Bee extends Enemy{
     public void move(){
         new Thread(){
             public void run(){
-
+                //用于控制Bee发射子弹的频率
+                int tem=0;
                 while (true){
                     if (isDead)return;
                     hit("Right");
@@ -38,6 +39,12 @@ public class Bee extends Enemy{
 
                     x+=speed;
                     moveDistance+=speed;
+                    tem+=speed<0?-speed:speed;
+                    if (tem>80){
+                        addBeeBoom();
+                        tem=0;
+                    }
+
                     try {
                         this.sleep(20);
                     } catch (InterruptedException e) {
@@ -57,7 +64,7 @@ public class Bee extends Enemy{
 
         //判断是否和子弹相撞
         for (Boom b : gf.boomList){
-
+            if (b instanceof Beeboom)continue;
             if (dir.equals("Left")) {
                 rect = new Rectangle(b.x + 5, b.y, b.width, b.width);
             } else if (dir.equals("Right")) {
@@ -69,7 +76,7 @@ public class Bee extends Enemy{
                 if (life>1) {
                     gf.boomList.remove(b);
                     life--;
-                    deadMove();
+                    hurt();
                     return true;
                 }else {
                     gf.boomList.remove(b);
@@ -132,7 +139,8 @@ public class Bee extends Enemy{
 
     }
 
-    public void deadMove(){
+    //受伤动画
+    public void hurt(){
         this.setImg(new ImageIcon("image/bee_hurt.png").getImage());
         try {
             Thread.sleep(100);
@@ -140,5 +148,13 @@ public class Bee extends Enemy{
             k.printStackTrace();
         }
         this.setImg(new ImageIcon("image/bee.png").getImage());
+    }
+
+    //发射子弹
+    public void addBeeBoom(){
+        Beeboom b1 = new Beeboom(x,y,10,2,-3,gf);
+        Beeboom b2 = new Beeboom(x,y,10,-2,-3,gf);
+        gf.boomList.add(b1);
+        gf.boomList.add(b2);
     }
 }

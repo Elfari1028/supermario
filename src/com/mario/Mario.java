@@ -96,6 +96,11 @@ public class Mario {
 									Enemy enemy = gf.enemyList.get(i);
 									enemy.x += xspeed;
 								}
+								//子弹向右移动
+								for (int i=0;i<gf.boomList.size();i++){
+									Boom b=gf.boomList.get(i);
+									b.x+=xspeed;
+								}
 								img = new ImageIcon("image/mari_left.gif").getImage();
 							}else{
 								if (x>=0) {
@@ -130,6 +135,11 @@ public class Mario {
 								for (int i = 0; i < gf.enemyList.size(); i++) {
 									Enemy enemy = gf.enemyList.get(i);
 									enemy.x -= xspeed;
+								}
+								//子弹向左移动
+								for (int i=0;i<gf.boomList.size();i++){
+									Boom b=gf.boomList.get(i);
+									b.x-=xspeed;
 								}
 								img = new ImageIcon("image/mari_right.gif").getImage();
 							}else{
@@ -181,7 +191,7 @@ public class Mario {
 			//模拟重力加速度
 			speed=((speed-g)<0?0:(speed-g));
 
-			gf.mario.y-=speed;
+			y-=speed;
 			if(hit(Dir_Up))break;
 			if (speed<=0)break;
 
@@ -193,15 +203,15 @@ public class Mario {
 		}
 		//为了构造反弹效果，所以speed与碰撞之间相等但反向
 		for (int i = 0; i <1000; i++) {
-			if (gf.mario.y>600){
-				gf.mario.isDead=true;
+			if (y>600){
+				isDead=true;
 				break;
 			}
 			if(hit(Dir_Down))break;
 			speed+=g;
 
 			speed=speed>5?5:speed;
-			gf.mario.y+=speed;
+			y+=speed;
 			if(hit(Dir_Down))break;
 
 			try {
@@ -220,7 +230,24 @@ public class Mario {
 		Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.height);
 
 		Rectangle rect =null;
-		
+		//检测是否碰到BeeBoom
+		for (int i=0;i<gf.boomList.size();i++){
+			Boom b=gf.boomList.get(i);
+			if (b instanceof Beeboom){
+				Beeboom bb = (Beeboom)b;
+				rect = new Rectangle(bb.x,bb.y,bb.width,bb.width);
+
+				//活的马里奥碰到BeeBoom，死
+				if (myrect.intersects(rect)&&!isDead){
+					gf.boomList.remove(bb);
+					isDead=true;
+					deadMove(2);
+					return true;
+				}
+			}
+		}
+
+
 		for (int i = 0; i < gf.enemyList.size(); i++) {
 			Enemy enemy = gf.enemyList.get(i);
 			if (enemy==null) return false;
@@ -274,23 +301,23 @@ public class Mario {
 					coinNum++;
 				}
 				//从左右碰到乌龟，乌龟是活的，马里奥也是活的，马里奥才能死
-				else if ((!gf.mario.isDead)&&enemy.getClass() == Turtle.class&&(dir.equals(Dir_Left)||dir.equals(Dir_Right))&&!((Turtle) enemy).isDead){
-					gf.mario.isDead=true;
+				else if ((!isDead)&&enemy.getClass() == Turtle.class&&(dir.equals(Dir_Left)||dir.equals(Dir_Right))&&!((Turtle) enemy).isDead){
+					isDead=true;
 					deadMove(2);
 				}
 				//从上方碰到乌龟，乌龟是活的，马里奥也是活的，乌龟才能死
-				else if ((!gf.mario.isDead)&&enemy.getClass() == Turtle.class&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
+				else if ((!isDead)&&enemy.getClass() == Turtle.class&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
 					((Turtle) enemy).isDead=true;
 					((Turtle) enemy).deadMove(2);
 				}
 				//活的马里奥碰到地刺，无论从那个方向，就死亡
-				else if((!gf.mario.isDead)&&enemy.getClass() == Trap.class){
-					gf.mario.isDead=true;
+				else if((!isDead)&&enemy.getClass() == Trap.class){
+					isDead=true;
 					deadMove(2);
 				}
 				//活的马里奥碰到活的蜜蜂，无论那个方向，死
-				else if((!gf.mario.isDead)&&enemy.getClass() == Bee.class&&((Bee)enemy).life>0){
-					gf.mario.isDead=true;
+				else if((!isDead)&&enemy.getClass() == Bee.class&&((Bee)enemy).life>0){
+					isDead=true;
 					deadMove(2);
 				}
 
@@ -308,7 +335,7 @@ public class Mario {
 			//模拟重力加速度
 			speed=((speed-g)<0?0:(speed-g));
 
-			gf.mario.y-=speed;
+			y-=speed;
 			if (speed<=0)break;
 			try {
 				Thread.sleep(10);
@@ -320,9 +347,9 @@ public class Mario {
 			speed+=g;
 
 			speed=speed>5?5:speed;
-			gf.mario.y+=speed;
-			if (gf.mario.y>450)break;
-			if (!gf.mario.isDead)break;
+			y+=speed;
+			if (y>450)break;
+			if (!isDead)break;
 
 			try {
 				Thread.sleep(10);
@@ -358,8 +385,8 @@ public class Mario {
 
 							double speed = 0;
 							while (true){
-								if (gf.mario.y>600){
-									gf.mario.isDead=true;
+								if (y>600){
+									isDead=true;
 									break;
 								}
 								if(!jumpFlag){
@@ -367,7 +394,7 @@ public class Mario {
 								}
 								speed += g;
 								speed=speed>5?5:speed;
-								gf.mario.y += speed;
+								y += speed;
 								if (hit(Dir_Down)) break;
 								try {
 									Thread.sleep(10);
@@ -390,5 +417,11 @@ public class Mario {
 	
 	}
 
+	//添加子弹
+	public void addBoom() {
+		Boom b = new Boom(x,y+5,10,gf);
+		b.speed = isFaceRight?4:-4;
+		gf.boomList.add(b);
+	}
 
 }

@@ -32,7 +32,7 @@ public class KeyListener extends KeyAdapter{
 				gf.mario.left=true;
 				break;
 			case 66:
-				addBoom();
+				if (!gf.mario.isDead) gf.mario.addBoom();
 				break;
 			//向上跳
 			case 38:
@@ -41,13 +41,6 @@ public class KeyListener extends KeyAdapter{
 			case 82:
 				gf.mario.revive();
 		}
-	}
-	
-	//添加子弹
-	public void addBoom() {	
-		Boom b = new Boom(gf.mario.x,gf.mario.y+5,10,gf);
-		b.speed = gf.mario.isFaceRight?4:-4;
-		gf.boomList.add(b);
 	}
 
 	//键盘释放监听
