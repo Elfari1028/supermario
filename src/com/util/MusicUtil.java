@@ -20,7 +20,7 @@ public class MusicUtil {
         }
     }
 
-    // 2.播放
+    // 播放
     public static void playBackground(){
         //循环播放
         clip.setFramePosition(0);

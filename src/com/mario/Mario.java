@@ -34,6 +34,8 @@ public class Mario {
 	public int coinNum = 0;
 	//马里奥是否死亡
 	public boolean isDead = false;
+	//马里奥是否通关
+	public boolean isWin = false;
 	
 	public boolean left=false,right=false,down=false,up=false;
 	
@@ -46,6 +48,7 @@ public class Mario {
 	}
 	//重生
 	public void  revive(){
+		isWin=false;
 		isDead=false;
 		coinNum=0;
 		jumpFlag=true;
@@ -65,7 +68,7 @@ public class Mario {
 		new Thread(){
 			public void run(){
 				while(true){
-					if (isDead){
+					if (isDead||isWin){
 						try {
 							this.sleep(20);
 						} catch (InterruptedException e) {
@@ -247,7 +250,7 @@ public class Mario {
 			}
 		}
 
-
+		//检测是否碰到障碍物
 		for (int i = 0; i < gf.enemyList.size(); i++) {
 			Enemy enemy = gf.enemyList.get(i);
 			if (enemy==null) return false;
@@ -263,7 +266,7 @@ public class Mario {
 			//碰撞检测
 			if(myrect.intersects(rect)){
 				//碰到到是蘑菇，第一次变大，第二次变小
-				if (enemy.getClass() == Mashroom.class){
+				if (enemy instanceof Mashroom){
 					if (isBig){
 						gf.enemyList.remove(enemy);
 						isBig=false;
@@ -278,7 +281,7 @@ public class Mario {
 					}
 				}
 				//碰到的是金币砖块
-				else if (dir.equals("Up")&&enemy.getClass() == CoinBrick.class){
+				else if (dir.equals("Up")&&enemy instanceof CoinBrick){
 					if (!((CoinBrick) enemy).isOpen) {
 						((CoinBrick) enemy).isOpen=true;
 						enemy.setImg(new ImageIcon("image/coin_brick_null.png").getImage());
@@ -296,29 +299,33 @@ public class Mario {
 					}
 				}
 				//碰到金币
-				else if (enemy.getClass() == Coin.class){
+				else if (enemy instanceof Coin){
 					gf.enemyList.remove(enemy);
 					coinNum++;
 				}
 				//从左右碰到乌龟，乌龟是活的，马里奥也是活的，马里奥才能死
-				else if ((!isDead)&&enemy.getClass() == Turtle.class&&(dir.equals(Dir_Left)||dir.equals(Dir_Right))&&!((Turtle) enemy).isDead){
+				else if ((!isDead)&&enemy instanceof Turtle&&(dir.equals(Dir_Left)||dir.equals(Dir_Right))&&!((Turtle) enemy).isDead){
 					isDead=true;
 					deadMove(2);
 				}
 				//从上方碰到乌龟，乌龟是活的，马里奥也是活的，乌龟才能死
-				else if ((!isDead)&&enemy.getClass() == Turtle.class&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
+				else if ((!isDead)&&enemy instanceof Turtle&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
 					((Turtle) enemy).isDead=true;
 					((Turtle) enemy).deadMove(2);
 				}
 				//活的马里奥碰到地刺，无论从那个方向，就死亡
-				else if((!isDead)&&enemy.getClass() == Trap.class){
+				else if((!isDead)&&enemy instanceof Trap){
 					isDead=true;
 					deadMove(2);
 				}
 				//活的马里奥碰到活的蜜蜂，无论那个方向，死
-				else if((!isDead)&&enemy.getClass() == Bee.class&&((Bee)enemy).life>0){
+				else if((!isDead)&&enemy instanceof Bee&&((Bee)enemy).life>0){
 					isDead=true;
 					deadMove(2);
+				}
+				//活的马里奥碰到flag，胜利
+				else if((!isDead)&&enemy instanceof Flag){
+					isWin=true;
 				}
 
 				return true;

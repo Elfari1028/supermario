@@ -16,7 +16,7 @@ public class GameFrame extends JFrame{
 	// 超级玛丽:界面需要一个超级玛丽的。
 	public Mario mario;
 	// 分别定义:水管，金币,砖块，蘑菇，地刺
-	public Enemy mud,pipe,cionBrick,brick,mashroom,turtle,trap,bee;
+	public Enemy mud,pipe,cionBrick,brick,mashroom,turtle,trap,bee,flag;
 	//背景图片
 	public BackgroundImage bg ;
 	//定义一个集合容器装敌人对象
@@ -136,6 +136,11 @@ public class GameFrame extends JFrame{
 					enemyList.add(bee);
 					((Bee)bee).move();
 				}
+				//读到9画终点flag
+				if(map[i][j]==9){
+					flag = new Flag(j*30,i*30,30,30,new ImageIcon("image/flag.png").getImage());
+					enemyList.add(flag);
+				}
 			}
 		}
 	}
@@ -193,6 +198,14 @@ public class GameFrame extends JFrame{
 				c = big.getColor();
 				big.setColor(Color.red);
 				big.drawString("You are dead, Please press R", 300, 220);
+				big.setColor(c);
+			}
+
+			//画胜利消息
+			if (mario.isWin) {
+				c = big.getColor();
+				big.setColor(Color.yellow);
+				big.drawString("You are win, Press R to restart", 300, 220);
 				big.setColor(c);
 			}
 

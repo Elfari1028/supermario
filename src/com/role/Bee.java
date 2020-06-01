@@ -141,13 +141,17 @@ public class Bee extends Enemy{
 
     //受伤动画
     public void hurt(){
-        this.setImg(new ImageIcon("image/bee_hurt.png").getImage());
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException k) {
-            k.printStackTrace();
-        }
-        this.setImg(new ImageIcon("image/bee.png").getImage());
+        new Thread(){
+            public void run(){
+                setImg(new ImageIcon("image/bee_hurt.png").getImage());
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException k) {
+                    k.printStackTrace();
+                }
+                setImg(new ImageIcon("image/bee.png").getImage());
+            }
+        }.start();
     }
 
     //发射子弹

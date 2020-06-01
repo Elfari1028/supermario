@@ -30,7 +30,7 @@ public class Boom {
 		//¼ì²âÊÇ·ñÅöµ½ÕÏ°­Îï
 		for (int i = 0; i < gf.enemyList.size(); i++) {
 			Enemy enemy = gf.enemyList.get(i);
-			if (enemy.getClass()==Bee.class)continue;
+			if (enemy instanceof Bee)continue;
 			if (enemy==null) return false;
 
 			rect = new Rectangle(enemy.x,enemy.y,enemy.width,enemy.height);
