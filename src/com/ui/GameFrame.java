@@ -96,7 +96,7 @@ public class GameFrame extends JFrame {
 			}
 		});
 	}
-	
+
 	public void start() {
 		this.setVisible(true);
 		// 马里奥开始移动
@@ -110,8 +110,13 @@ public class GameFrame extends JFrame {
 
 	public void dispose() {
 		this.mario.dispose();
-		this.repaintThread.interrupt();
-		this.musicThread.interrupt();
+		if (this.repaintThread != null && this.repaintThread.isAlive())
+			this.repaintThread.interrupt();
+		if (this.repaintThread != null && this.musicThread.isAlive())
+			this.musicThread.interrupt();
+		for (Enemy enemy : enemyList) {
+			enemy.dispose();
+		}
 	}
 
 	public void loadMap() {
@@ -157,7 +162,7 @@ public class GameFrame extends JFrame {
 				if (map[i][j] == 6) {
 					enemy = new Turtle(j * 30, i * 30, 30, 30, 2.5, new ImageIcon("image/turtle.png").getImage(), this);
 					enemyList.add(enemy);
-					((Turtle) enemy).move();
+					((Turtle) enemy).start();
 				}
 				// 读到7画地刺
 				if (map[i][j] == 7) {
@@ -168,7 +173,7 @@ public class GameFrame extends JFrame {
 				if (map[i][j] == 8) {
 					enemy = new Bee(j * 30, i * 30, 30, 30, 2, 150, new ImageIcon("image/bee.png").getImage(), this);
 					enemyList.add(enemy);
-					((Bee) enemy).move();
+					((Bee) enemy).start();
 				}
 				// 读到9画终点flag
 				if (map[i][j] == 9) {

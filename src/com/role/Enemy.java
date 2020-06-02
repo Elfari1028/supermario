@@ -26,4 +26,7 @@ public abstract class Enemy {
 	public void setImg(Image img) {
 		this.img = img;
 	}
+	
+	public void dispose(){
+	};
 }

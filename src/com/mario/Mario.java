@@ -74,10 +74,9 @@ public class Mario {
 	}
 
 	public void dispose() {
-		this.jumpThread.interrupt();
-		this.runThread.interrupt();
-		this.gravityThread.interrupt();
-
+		if(this.jumpThread != null && this.jumpThread.isAlive()) this.jumpThread.interrupt();
+		if(this.runThread != null && this.runThread.isAlive())this.runThread.interrupt();
+		if(this.gravityThread != null && this.gravityThread.isAlive())this.gravityThread.interrupt();
 	}
 
 	// 玛丽移动的逻辑在这里
