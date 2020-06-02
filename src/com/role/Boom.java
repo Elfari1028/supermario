@@ -5,37 +5,39 @@ import com.ui.GameFrame;
 import java.awt.*;
 
 /*
-  ×Óµ¯Àà
+  å­å¼¹ç±»
  */
 public class Boom {
-	//×Óµ¯µÄ×ø±ê£¬´óĞ¡£¬ËÙ¶È
-	public int x,y;
+	// å­å¼¹çš„åæ ‡ï¼Œå¤§å°ï¼Œé€Ÿåº¦
+	public int x, y;
 	public int width;
-	public int speed=2;
+	public int speed = 2;
 	GameFrame gf;
-	
-	public Boom(int x, int y, int width,GameFrame gf) {
+
+	public Boom(int x, int y, int width, GameFrame gf) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.gf = gf;
 	}
 
-	public boolean hit(){
+	public boolean hit() {
 
-		Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.width);
+		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.width);
 
-		Rectangle rect =null;
+		Rectangle rect = null;
 
-		//¼ì²âÊÇ·ñÅöµ½ÕÏ°­Îï
+		// æ£€æµ‹æ˜¯å¦ç¢°åˆ°éšœç¢ç‰©
 		for (int i = 0; i < gf.enemyList.size(); i++) {
 			Enemy enemy = gf.enemyList.get(i);
-			if (enemy instanceof Bee)continue;
-			if (enemy==null) return false;
+			if (enemy instanceof Bee)
+				continue;
+			if (enemy == null)
+				return false;
 
-			rect = new Rectangle(enemy.x,enemy.y,enemy.width,enemy.height);
+			rect = new Rectangle(enemy.x, enemy.y, enemy.width, enemy.height);
 
-			if(myrect.intersects(rect)){
+			if (myrect.intersects(rect)) {
 				return true;
 			}
 		}

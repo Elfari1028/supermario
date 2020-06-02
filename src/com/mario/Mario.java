@@ -7,427 +7,454 @@ import javax.swing.ImageIcon;
 import com.role.*;
 import com.ui.GameFrame;
 
-//×Ô¼ºµÄ½ÇÉ«Àà
+//è‡ªå·±çš„è§’è‰²ç±»
 public class Mario {
-	
+
 	public GameFrame gf;
 
-	//µØÍ¼µÄ×óÓÒ±ß½ç
-	public int mapLeft=0,mapRight=2000;
-	//ÊÇ·ñ¿ÉÒÔjump
-	public boolean jumpFlag=true;
-	//ÖØÁ¦¼ÓËÙ¶È
-	public double g=0.15;
-	//ÂíÀï°ÂµÄ×ø±ê
-	public int x=180,y=200;
-	//ÂíÀï°ÂµÄËÙ¶È
-	public double xspeed=5 , yspeed=6;
-	//ÂíÀï°ÂµÄ¿í¸ß
-	public int width=25,height=30;
-	//ÂíÀï°ÂµÄÍ¼Æ¬
+	// åœ°å›¾çš„å·¦å³è¾¹ç•Œ
+	public int mapLeft = 0, mapRight = 2000;
+	// æ˜¯å¦å¯ä»¥jump
+	public boolean jumpFlag = true;
+	// é‡åŠ›åŠ é€Ÿåº¦
+	public double g = 0.15;
+	// é©¬é‡Œå¥¥çš„åæ ‡
+	public int x = 180, y = 200;
+	// é©¬é‡Œå¥¥çš„é€Ÿåº¦
+	public double xspeed = 5, yspeed = 6;
+	// é©¬é‡Œå¥¥çš„å®½é«˜
+	public int width = 25, height = 30;
+	// é©¬é‡Œå¥¥çš„å›¾ç‰‡
 	public Image img = new ImageIcon("image/mari1.png").getImage();
-	//ÂíÀï°Â³¯×ó»¹ÊÇ³¯ÓÒ
-	public boolean isFaceRight=true;
-	//ÂíÀï°ÂÊÇ·ñ±ä´ó
-	public boolean isBig=false;
-	//ÂíÀï°ÂµÄ½ğ±ÒÊıÁ¿
+	// é©¬é‡Œå¥¥æœå·¦è¿˜æ˜¯æœå³
+	public boolean isFaceRight = true;
+	// é©¬é‡Œå¥¥æ˜¯å¦å˜å¤§
+	public boolean isBig = false;
+	// é©¬é‡Œå¥¥çš„é‡‘å¸æ•°é‡
 	public int coinNum = 0;
-	//ÂíÀï°ÂÊÇ·ñËÀÍö
+	// é©¬é‡Œå¥¥æ˜¯å¦æ­»äº¡
 	public boolean isDead = false;
-	//ÂíÀï°ÂÊÇ·ñÍ¨¹Ø
+	// é©¬é‡Œå¥¥æ˜¯å¦é€šå…³
 	public boolean isWin = false;
-	
-	public boolean left=false,right=false,down=false,up=false;
-	
-	public String Dir_Up="Up",Dir_Left="Left",Dir_Right="Right",Dir_Down="Down";
-	
-	
-	public Mario (GameFrame gf) {
+
+	public boolean left = false, right = false, down = false, up = false;
+
+	public String Dir_Up = "Up", Dir_Left = "Left", Dir_Right = "Right", Dir_Down = "Down";
+
+	Thread jumpThread;
+	Thread runThread;
+	Thread gravityThread;
+
+	public Mario(GameFrame gf) {
 		this.gf = gf;
-		this.gravity();
-	}
-	//ÖØÉú
-	public void  revive(){
-		isWin=false;
-		isDead=false;
-		coinNum=0;
-		jumpFlag=true;
-		isBig=false;
-		width=25;
-		height=30;
-		this.x=200;
-		this.y=180;
-		//±³¾°¹éÎ»
-		gf.bg.x=0;
-		//ÖØĞÂ¼ÓÔØµØÍ¼
-		gf.relodeMap();
 	}
 
-	// ÂêÀöÒÆ¶¯µÄÂß¼­ÔÚÕâÀï
-	public void run(){
-		new Thread(){
-			public void run(){
-				while(true){
-					if (isDead||isWin){
+	public void start() {
+		this.initGravity();
+		this.initRun();
+		this.runThread.start();
+		this.gravityThread.start();
+	}
+
+	// é‡ç”Ÿ
+	public void revive() {
+		isWin = false;
+		isDead = false;
+		coinNum = 0;
+		jumpFlag = true;
+		isBig = false;
+		width = 25;
+		height = 30;
+		this.x = 200;
+		this.y = 180;
+		// èƒŒæ™¯å½’ä½
+		gf.bg.x = 0;
+		// é‡æ–°åŠ è½½åœ°å›¾
+		gf.loadMap();
+	}
+
+	public void dispose() {
+		this.jumpThread.interrupt();
+		this.runThread.interrupt();
+		this.gravityThread.interrupt();
+
+	}
+
+	// ç›ä¸½ç§»åŠ¨çš„é€»è¾‘åœ¨è¿™é‡Œ
+	public void initRun() {
+		this.runThread = new Thread() {
+			public void run() {
+				while (!Thread.currentThread().isInterrupted()) {
+					if (isDead || isWin) {
 						try {
-							this.sleep(20);
+							Thread.sleep(20);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							// e.printStackTrace();
+							return;
 						}
 						continue;
 					}
-					//Ïò×ó×ß
-					if(left){
-						isFaceRight=false;
-						//Åö×²µ½ÁË
-						if(hit(Dir_Left)){
-							xspeed=0;
+					// å‘å·¦èµ°
+					if (left) {
+						isFaceRight = false;
+						// ç¢°æ’åˆ°äº†
+						if (hit(Dir_Left)) {
+							xspeed = 0;
 						}
 
-						//ÈÎÈËÎïÏò×óÒÆ¶¯
-						if(x>=200){
-							x-=xspeed;
-							img=new ImageIcon("image/mari_left.gif").getImage();
+						// ä»»äººç‰©å‘å·¦ç§»åŠ¨
+						if (x >= 200) {
+							x -= xspeed;
+							img = new ImageIcon("image/mari_left.gif").getImage();
 						}
 
-						if(x<200){
-							if (gf.bg.x<mapLeft) {
-								//±³¾°ÏòÓÒÒÆ¶¯
+						if (x < 200) {
+							if (gf.bg.x < mapLeft) {
+								// èƒŒæ™¯å‘å³ç§»åŠ¨
 								gf.bg.x += xspeed;
-								//ÕÏ°­ÎïÏîÓÒÒÆ¶¯
+								// éšœç¢ç‰©é¡¹å³ç§»åŠ¨
 								for (int i = 0; i < gf.enemyList.size(); i++) {
 									Enemy enemy = gf.enemyList.get(i);
 									enemy.x += xspeed;
 								}
-								//×Óµ¯ÏòÓÒÒÆ¶¯
-								for (int i=0;i<gf.boomList.size();i++){
-									Boom b=gf.boomList.get(i);
-									b.x+=xspeed;
+								// å­å¼¹å‘å³ç§»åŠ¨
+								for (int i = 0; i < gf.boomList.size(); i++) {
+									Boom b = gf.boomList.get(i);
+									b.x += xspeed;
 								}
 								img = new ImageIcon("image/mari_left.gif").getImage();
-							}else{
-								if (x>=0) {
+							} else {
+								if (x >= 0) {
 									x -= xspeed;
 									img = new ImageIcon("image/mari_left.gif").getImage();
 								}
 							}
 						}
-						xspeed=5;
+						xspeed = 5;
 					}
 
-					//ÏòÓÒ×ß
-					else if(right){
-						isFaceRight=true;
-						// ÓÒ±ßÅö×²Îï¼ì²âÓ¦¸ÃÊÇÍùÓÒ×ßµÄÊ±ºò¼ì²â
-						// ½øĞĞÅö×²¼ì²â£ºÖÁÉÙÖ÷½Ç£¨ÂêÀö£¬Åö×²Îï£©
-						if(hit(Dir_Right)){
-							xspeed=0;
+					// å‘å³èµ°
+					else if (right) {
+						isFaceRight = true;
+						// å³è¾¹ç¢°æ’ç‰©æ£€æµ‹åº”è¯¥æ˜¯å¾€å³èµ°çš„æ—¶å€™æ£€æµ‹
+						// è¿›è¡Œç¢°æ’æ£€æµ‹ï¼šè‡³å°‘ä¸»è§’ï¼ˆç›ä¸½ï¼Œç¢°æ’ç‰©ï¼‰
+						if (hit(Dir_Right)) {
+							xspeed = 0;
 						}
 
-						//ÈÎÈËÎïÏòÓÒÒÆ¶¯
-						if(x<550){
+						// ä»»äººç‰©å‘å³ç§»åŠ¨
+						if (x < 550) {
 							x += xspeed;
-							img=new ImageIcon("image/mari_right.gif").getImage();
+							img = new ImageIcon("image/mari_right.gif").getImage();
 						}
 
-						if(x>=550){
-							if ((800-gf.bg.x)<mapRight) {
-								//±³¾°Ïò×óÒÆ¶¯
+						if (x >= 550) {
+							if ((800 - gf.bg.x) < mapRight) {
+								// èƒŒæ™¯å‘å·¦ç§»åŠ¨
 								gf.bg.x -= xspeed;
-								//ÕÏ°­ÎïÏî×óÒÆ¶¯
+								// éšœç¢ç‰©é¡¹å·¦ç§»åŠ¨
 								for (int i = 0; i < gf.enemyList.size(); i++) {
 									Enemy enemy = gf.enemyList.get(i);
 									enemy.x -= xspeed;
 								}
-								//×Óµ¯Ïò×óÒÆ¶¯
-								for (int i=0;i<gf.boomList.size();i++){
-									Boom b=gf.boomList.get(i);
-									b.x-=xspeed;
+								// å­å¼¹å‘å·¦ç§»åŠ¨
+								for (int i = 0; i < gf.boomList.size(); i++) {
+									Boom b = gf.boomList.get(i);
+									b.x -= xspeed;
 								}
 								img = new ImageIcon("image/mari_right.gif").getImage();
-							}else{
-								if (x<=770){
+							} else {
+								if (x <= 770) {
 									x += xspeed;
-									img=new ImageIcon("image/mari_right.gif").getImage();
+									img = new ImageIcon("image/mari_right.gif").getImage();
 								}
 							}
 						}
-						xspeed=5;
-					}else {//¼´Ã»ÓĞÏò×ó×ß£¬ÓÒÃ»ÏòÓÒ×ß
+						xspeed = 5;
+					} else {// å³æ²¡æœ‰å‘å·¦èµ°ï¼Œå³æ²¡å‘å³èµ°
 						hit(Dir_Right);
 						hit(Dir_Left);
 					}
 
-					//ÏòÉÏÌø
-					if(up){
-
-						if(jumpFlag){
-							jumpFlag=false;
-							//ÎªÁËÊµÏÖÔÚ¿ÕÖĞÒ²ÄÜ×óÓÒÒÆ¶¯
-							new Thread(){
-								public void run(){
-									jump(yspeed);
-									jumpFlag=true;
-								}
-							}.start();
+					// å‘ä¸Šè·³
+					if (up) {
+						if (jumpFlag) {
+							jumpFlag = false;
+							// ä¸ºäº†å®ç°åœ¨ç©ºä¸­ä¹Ÿèƒ½å·¦å³ç§»åŠ¨
+							createJumpThread(yspeed);
 						}
-
 					}
-
 					try {
-						this.sleep(20);
+						Thread.sleep(20);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						return;
 					}
 				}
 			}
-		}.start();
-
+		};
 	}
-	
-	//ÏòÉÏÌøµÄº¯Êı
-	public void jump(double speed){
+
+	public void createJumpThread(double speed) {
+		this.jumpThread = new Thread() {
+			public void run() {
+				jump(yspeed);
+				jumpFlag = true;
+			}
+		};
+		this.jumpThread.run();
+	}
+
+	// å‘ä¸Šè·³çš„å‡½æ•°
+	public void jump(double speed) {
 
 		for (int i = 0; i < 1000; i++) {
-			//Åö×²¼ì²âÒ»¶¨ÒªÔÚÒÆ¶¯Ö®Ç°
-			if(hit(Dir_Up))break;
-			//Ä£ÄâÖØÁ¦¼ÓËÙ¶È
-			speed=((speed-g)<0?0:(speed-g));
+			// ç¢°æ’æ£€æµ‹ä¸€å®šè¦åœ¨ç§»åŠ¨ä¹‹å‰
+			if (hit(Dir_Up))
+				break;
+			// æ¨¡æ‹Ÿé‡åŠ›åŠ é€Ÿåº¦
+			speed = ((speed - g) < 0 ? 0 : (speed - g));
 
-			y-=speed;
-			if(hit(Dir_Up))break;
-			if (speed<=0)break;
+			y -= speed;
+			if (hit(Dir_Up))
+				break;
+			if (speed <= 0)
+				break;
 
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				return;
 			}
 		}
-		//ÎªÁË¹¹Ôì·´µ¯Ğ§¹û£¬ËùÒÔspeedÓëÅö×²Ö®¼äÏàµÈµ«·´Ïò
-		for (int i = 0; i <1000; i++) {
-			if (y>600){
-				isDead=true;
+		// ä¸ºäº†æ„é€ åå¼¹æ•ˆæœï¼Œæ‰€ä»¥speedä¸ç¢°æ’ä¹‹é—´ç›¸ç­‰ä½†åå‘
+		for (int i = 0; i < 1000; i++) {
+			if (y > 600) {
+				isDead = true;
 				break;
 			}
-			if(hit(Dir_Down))break;
-			speed+=g;
+			if (hit(Dir_Down))
+				break;
+			speed += g;
 
-			speed=speed>5?5:speed;
-			y+=speed;
-			if(hit(Dir_Down))break;
+			speed = speed > 5 ? 5 : speed;
+			y += speed;
+			if (hit(Dir_Down))
+				break;
 
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				return;
 			}
 
 		}
 
 	}
 
-	//¼ì²âÅö×²
-	public boolean hit(String dir){
+	// æ£€æµ‹ç¢°æ’
+	public boolean hit(String dir) {
 
-		Rectangle myrect = new Rectangle(this.x,this.y,this.width,this.height);
+		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
 
-		Rectangle rect =null;
-		//¼ì²âÊÇ·ñÅöµ½BeeBoom
-		for (int i=0;i<gf.boomList.size();i++){
-			Boom b=gf.boomList.get(i);
-			if (b instanceof Beeboom){
-				Beeboom bb = (Beeboom)b;
-				rect = new Rectangle(bb.x,bb.y,bb.width,bb.width);
+		Rectangle rect = null;
+		// æ£€æµ‹æ˜¯å¦ç¢°åˆ°BeeBoom
+		try {
+			for (int i = 0; i < gf.boomList.size(); i++) {
+				Boom b = gf.boomList.get(i);
+				if (b instanceof Beeboom) {
+					Beeboom bb = (Beeboom) b;
+					rect = new Rectangle(bb.x, bb.y, bb.width, bb.width);
 
-				//»îµÄÂíÀï°ÂÅöµ½BeeBoom£¬ËÀ
-				if (myrect.intersects(rect)&&!isDead){
-					gf.boomList.remove(bb);
-					isDead=true;
-					deadMove(2);
-					return true;
-				}
-			}
-		}
-
-		//¼ì²âÊÇ·ñÅöµ½ÕÏ°­Îï
-		for (int i = 0; i < gf.enemyList.size(); i++) {
-			Enemy enemy = gf.enemyList.get(i);
-			if (enemy==null) return false;
-			if(dir.equals("Left")){
-				rect = new Rectangle(enemy.x+5,enemy.y,enemy.width,enemy.height);
-			}else if(dir.equals("Right")){
-				rect = new Rectangle(enemy.x-5,enemy.y,enemy.width,enemy.height);
-			}else if(dir.equals("Up")){
-				rect = new Rectangle(enemy.x,enemy.y+5,enemy.width,enemy.height);
-			}else if(dir.equals("Down")){
-				rect = new Rectangle(enemy.x,enemy.y-5,enemy.width,enemy.height);
-			}
-			//Åö×²¼ì²â
-			if(myrect.intersects(rect)){
-				//Åöµ½µ½ÊÇÄ¢¹½£¬µÚÒ»´Î±ä´ó£¬µÚ¶ş´Î±äĞ¡
-				if (enemy instanceof Mashroom){
-					if (isBig){
-						gf.enemyList.remove(enemy);
-						isBig=false;
-						width=25;
-						height=30;
-					}else {
-						gf.enemyList.remove(enemy);
-						isBig=true;
-						y-=6;
-						width=30;
-						height=36;
+					// æ´»çš„é©¬é‡Œå¥¥ç¢°åˆ°BeeBoomï¼Œæ­»
+					if (myrect.intersects(rect) && !isDead) {
+						gf.boomList.remove(bb);
+						isDead = true;
+						deadMove(2);
+						return true;
 					}
 				}
-				//Åöµ½µÄÊÇ½ğ±Ò×©¿é
-				else if (dir.equals("Up")&&enemy instanceof CoinBrick){
-					if (!((CoinBrick) enemy).isOpen) {
-						((CoinBrick) enemy).isOpen=true;
-						enemy.setImg(new ImageIcon("image/coin_brick_null.png").getImage());
-						Coin coin = new Coin(enemy.x+4,enemy.y-10,22,30,new ImageIcon("image/coin.png").getImage());
-						gf.enemyList.add(coin);
+			}
 
-						for (int j=0;j<10;j++){
-							try {
-								Thread.sleep(10);
-							}catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-							coin.y-=2;
+			// æ£€æµ‹æ˜¯å¦ç¢°åˆ°éšœç¢ç‰©
+			for (int i = 0; i < gf.enemyList.size(); i++) {
+				Enemy enemy = gf.enemyList.get(i);
+				if (enemy == null)
+					return false;
+				if (dir.equals("Left")) {
+					rect = new Rectangle(enemy.x + 5, enemy.y, enemy.width, enemy.height);
+				} else if (dir.equals("Right")) {
+					rect = new Rectangle(enemy.x - 5, enemy.y, enemy.width, enemy.height);
+				} else if (dir.equals("Up")) {
+					rect = new Rectangle(enemy.x, enemy.y + 5, enemy.width, enemy.height);
+				} else if (dir.equals("Down")) {
+					rect = new Rectangle(enemy.x, enemy.y - 5, enemy.width, enemy.height);
+				}
+				// ç¢°æ’æ£€æµ‹
+
+				if (myrect.intersects(rect)) {
+					// ç¢°åˆ°åˆ°æ˜¯è˜‘è‡ï¼Œç¬¬ä¸€æ¬¡å˜å¤§ï¼Œç¬¬äºŒæ¬¡å˜å°
+					if (enemy instanceof Mashroom) {
+						if (isBig) {
+							gf.enemyList.remove(enemy);
+							isBig = false;
+							width = 25;
+							height = 30;
+						} else {
+							gf.enemyList.remove(enemy);
+							isBig = true;
+							y -= 6;
+							width = 30;
+							height = 36;
 						}
 					}
-				}
-				//Åöµ½½ğ±Ò
-				else if (enemy instanceof Coin){
-					gf.enemyList.remove(enemy);
-					coinNum++;
-				}
-				//´Ó×óÓÒÅöµ½ÎÚ¹ê£¬ÎÚ¹êÊÇ»îµÄ£¬ÂíÀï°ÂÒ²ÊÇ»îµÄ£¬ÂíÀï°Â²ÅÄÜËÀ
-				else if ((!isDead)&&enemy instanceof Turtle&&(dir.equals(Dir_Left)||dir.equals(Dir_Right))&&!((Turtle) enemy).isDead){
-					isDead=true;
-					deadMove(2);
-				}
-				//´ÓÉÏ·½Åöµ½ÎÚ¹ê£¬ÎÚ¹êÊÇ»îµÄ£¬ÂíÀï°ÂÒ²ÊÇ»îµÄ£¬ÎÚ¹ê²ÅÄÜËÀ
-				else if ((!isDead)&&enemy instanceof Turtle&&dir.equals(Dir_Down)&&!((Turtle) enemy).isDead){
-					((Turtle) enemy).isDead=true;
-					((Turtle) enemy).deadMove(2);
-				}
-				//»îµÄÂíÀï°ÂÅöµ½µØ´Ì£¬ÎŞÂÛ´ÓÄÇ¸ö·½Ïò£¬¾ÍËÀÍö
-				else if((!isDead)&&enemy instanceof Trap){
-					isDead=true;
-					deadMove(2);
-				}
-				//»îµÄÂíÀï°ÂÅöµ½»îµÄÃÛ·ä£¬ÎŞÂÛÄÇ¸ö·½Ïò£¬ËÀ
-				else if((!isDead)&&enemy instanceof Bee&&((Bee)enemy).life>0){
-					isDead=true;
-					deadMove(2);
-				}
-				//»îµÄÂíÀï°ÂÅöµ½flag£¬Ê¤Àû
-				else if((!isDead)&&enemy instanceof Flag){
-					isWin=true;
-				}
+					// ç¢°åˆ°çš„æ˜¯é‡‘å¸ç –å—
+					else if (dir.equals("Up") && enemy instanceof CoinBrick) {
+						if (!((CoinBrick) enemy).isOpen) {
+							((CoinBrick) enemy).isOpen = true;
+							enemy.setImg(new ImageIcon("image/coin_brick_null.png").getImage());
+							Coin coin = new Coin(enemy.x + 4, enemy.y - 10, 22, 30,
+									new ImageIcon("image/coin.png").getImage());
+							gf.enemyList.add(coin);
 
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	//ÂíÀï°ÂËÀÍö¶¯»­
-	public void deadMove(double speed){
-		//ÎŞÅö×²¼ì²â
-		for (int i = 0; i < 1000; i++) {
-			//Ä£ÄâÖØÁ¦¼ÓËÙ¶È
-			speed=((speed-g)<0?0:(speed-g));
-
-			y-=speed;
-			if (speed<=0)break;
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		for (int i = 0; i <1000; i++) {
-			speed+=g;
-
-			speed=speed>5?5:speed;
-			y+=speed;
-			if (y>450)break;
-			if (!isDead)break;
-
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-		}
-	}
-
-	//ÖØÁ¦Ïß³Ì
-	public void gravity(){
-			new Thread(){
-				public void run(){
-					
-					while(true){
-						try {
-							sleep(10);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						
-
-						while(true){
-							if(!jumpFlag){
-								break;
-							}
-							
-							if(hit(Dir_Down)){
-								break;
-							}
-
-
-							double speed = 0;
-							while (true){
-								if (y>600){
-									isDead=true;
-									break;
-								}
-								if(!jumpFlag){
-									break;
-								}
-								speed += g;
-								speed=speed>5?5:speed;
-								y += speed;
-								if (hit(Dir_Down)) break;
+							for (int j = 0; j < 10; j++) {
 								try {
 									Thread.sleep(10);
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
-							}
-
-
-							try {
-								sleep(10);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
+								coin.y -= 2;
 							}
 						}
 					}
+					// ç¢°åˆ°é‡‘å¸
+					else if (enemy instanceof Coin) {
+						gf.enemyList.remove(enemy);
+						coinNum++;
+					}
 
+					// ä»å·¦å³ç¢°åˆ°ä¹Œé¾Ÿï¼Œä¹Œé¾Ÿæ˜¯æ´»çš„ï¼Œé©¬é‡Œå¥¥ä¹Ÿæ˜¯æ´»çš„ï¼Œé©¬é‡Œå¥¥æ‰èƒ½æ­»
+					else if ((!isDead) && enemy instanceof Turtle && (dir.equals(Dir_Left) || dir.equals(Dir_Right))
+							&& !((Turtle) enemy).isDead) {
+						isDead = true;
+						deadMove(2);
+					}
+					// ä»ä¸Šæ–¹ç¢°åˆ°ä¹Œé¾Ÿï¼Œä¹Œé¾Ÿæ˜¯æ´»çš„ï¼Œé©¬é‡Œå¥¥ä¹Ÿæ˜¯æ´»çš„ï¼Œä¹Œé¾Ÿæ‰èƒ½æ­»
+					else if ((!isDead) && enemy instanceof Turtle && dir.equals(Dir_Down) && !((Turtle) enemy).isDead) {
+						((Turtle) enemy).isDead = true;
+						((Turtle) enemy).deadMove(2);
+					}
+					// æ´»çš„é©¬é‡Œå¥¥ç¢°åˆ°åœ°åˆºï¼Œæ— è®ºä»é‚£ä¸ªæ–¹å‘ï¼Œå°±æ­»äº¡
+					else if ((!isDead) && enemy instanceof Trap) {
+						isDead = true;
+						deadMove(2);
+					}
+					// æ´»çš„é©¬é‡Œå¥¥ç¢°åˆ°æ´»çš„èœœèœ‚ï¼Œæ— è®ºé‚£ä¸ªæ–¹å‘ï¼Œæ­»
+					else if ((!isDead) && enemy instanceof Bee && ((Bee) enemy).life > 0) {
+						isDead = true;
+						deadMove(2);
+					}
+					// æ´»çš„é©¬é‡Œå¥¥ç¢°åˆ°flagï¼Œèƒœåˆ©
+					else if ((!isDead) && enemy instanceof Flag) {
+						isWin = true;
+					}
+
+					return true;
 				}
-			}.start();
-	
+			}
+		} catch (InterruptedException e) {
+			// æœ¬æ¥åº”è¯¥ç«‹å³é€€å‡º true false æ— æ‰€è°“äº†
+			return false;
+		}
+
+		return false;
 	}
 
-	//Ìí¼Ó×Óµ¯
+	// é©¬é‡Œå¥¥æ­»äº¡åŠ¨ç”»
+	public void deadMove(double speed) throws InterruptedException {
+		// æ— ç¢°æ’æ£€æµ‹
+		for (int i = 0; i < 1000; i++) {
+			// æ¨¡æ‹Ÿé‡åŠ›åŠ é€Ÿåº¦
+			speed = ((speed - g) < 0 ? 0 : (speed - g));
+
+			y -= speed;
+			if (speed <= 0)
+				break;
+			Thread.sleep(10);
+		}
+		for (int i = 0; i < 1000; i++) {
+			speed += g;
+
+			speed = speed > 5 ? 5 : speed;
+			y += speed;
+			if (y > 450)
+				break;
+			if (!isDead)
+				break;
+			Thread.sleep(10);
+		}
+	}
+
+	// é‡åŠ›çº¿ç¨‹
+	public void initGravity() {
+		this.gravityThread = new Thread() {
+			public void run() {
+
+				while (!Thread.currentThread().isInterrupted()) {
+					try {
+						sleep(10);
+					} catch (InterruptedException e) {
+						// e.printStackTrace();
+						return;
+					}
+
+					while (!Thread.currentThread().isInterrupted()) {
+						if (!jumpFlag) {
+							break;
+						}
+
+						if (hit(Dir_Down)) {
+							break;
+						}
+
+						double speed = 0;
+						while (!Thread.currentThread().isInterrupted()) {
+							if (y > 600) {
+								isDead = true;
+								break;
+							}
+							if (!jumpFlag) {
+								break;
+							}
+							speed += g;
+							speed = speed > 5 ? 5 : speed;
+							y += speed;
+							if (hit(Dir_Down))
+								break;
+							try {
+								Thread.sleep(10);
+							} catch (InterruptedException e) {
+								// e.printStackTrace();
+								return;
+							}
+						}
+
+						try {
+							sleep(10);
+						} catch (InterruptedException e) {
+							// e.printStackTrace();
+							return;
+						}
+					}
+				}
+
+			}
+		};
+	}
+
+	// æ·»åŠ å­å¼¹
 	public void addBoom() {
-		Boom b = new Boom(x,y+5,10,gf);
-		b.speed = isFaceRight?4:-4;
+		Boom b = new Boom(x, y + 5, 10, gf);
+		b.speed = isFaceRight ? 4 : -4;
 		gf.boomList.add(b);
 	}
 

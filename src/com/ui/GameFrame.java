@@ -9,83 +9,117 @@ import com.mario.Mario;
 import com.role.*;
 import com.util.Map;
 import com.util.MusicUtil;
+
 /*
-   Ö÷Ìå´°¿Ú½çÃæ£ºÕ¹Ê¾½ÇÉ«¡£
+   ä¸»ä½“çª—å£ç•Œé¢ï¼šå±•ç¤ºè§’è‰²ã€‚
  */
-public class GameFrame extends JFrame{
-	// ³¬¼¶ÂêÀö:½çÃæĞèÒªÒ»¸ö³¬¼¶ÂêÀöµÄ¡£
+@SuppressWarnings("serial")
+public class GameFrame extends JFrame {
+	// è¶…çº§ç›ä¸½:ç•Œé¢éœ€è¦ä¸€ä¸ªè¶…çº§ç›ä¸½çš„ã€‚
 	public Mario mario;
-	// ·Ö±ğ¶¨Òå:Ë®¹Ü£¬½ğ±Ò,×©¿é£¬Ä¢¹½£¬µØ´Ì
-	public Enemy mud,pipe,cionBrick,brick,mashroom,turtle,trap,bee,flag;
-	//±³¾°Í¼Æ¬
-	public BackgroundImage bg ;
-	//¶¨ÒåÒ»¸ö¼¯ºÏÈİÆ÷×°µĞÈË¶ÔÏó
+
+	// èƒŒæ™¯å›¾ç‰‡
+	public BackgroundImage bg;
+	// å®šä¹‰ä¸€ä¸ªé›†åˆå®¹å™¨è£…æ•Œäººå¯¹è±¡
 	public ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
-	//¶¨ÒåÒ»¸ö¼¯ºÏÈİÆ÷×°×Óµ¯
+	// å®šä¹‰ä¸€ä¸ªé›†åˆå®¹å™¨è£…å­å¼¹
 	public ArrayList<Boom> boomList = new ArrayList<Boom>();
 
-	//µØÍ¼Êı¾İ
+	// åœ°å›¾æ•°æ®
 	public int[][] map = null;
-	{
-		// ÊµÀı´úÂë¿éÖĞ³õÊ¼»¯µØÍ¼×ÊÔ´µÄÊı¾İ
-		Map mp = new Map();
-		map = mp.readMap();
-	}
 
-	//¹¹Ôìº¯ÊıÀïÃæ³õÊ¼»¯±³¾°Í¼Æ¬ºÍÂíÀï°Â¶ÔÏó
-	public GameFrame() throws Exception {
-		//³õÊ¼»¯´°ÌåÏà¹ØÊôĞÔĞÅÏ¢Êı¾İ
-		// this´ú±íÁËµ±Ç°Ö÷½çÃæ¶ÔÏó¡£
-		this.setSize(800,450);
+	// çº¿ç¨‹å¯¹è±¡ï¼Œä¾¿åˆ©æ§åˆ¶
+	public Thread repaintThread;
+	public Thread musicThread;
+
+	// æ„é€ å‡½æ•°é‡Œé¢åˆå§‹åŒ–èƒŒæ™¯å›¾ç‰‡å’Œé©¬é‡Œå¥¥å¯¹è±¡
+	public GameFrame(String mapName) throws Exception {
+		// åˆå§‹åŒ–çª—ä½“ç›¸å…³å±æ€§ä¿¡æ¯æ•°æ®
+		// thisä»£è¡¨äº†å½“å‰ä¸»ç•Œé¢å¯¹è±¡ã€‚
+		this.setSize(800, 450);
 		this.setTitle("Mario");
 		this.setResizable(false);
-		// ¾ÓÖĞÕ¹Ê¾´°¿Ú
+		// å±…ä¸­å±•ç¤ºçª—å£
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setVisible(true);
 
-		// ´´½¨ÂêÀö¶ÔÏó
+		// åˆ›å»ºç›ä¸½å¯¹è±¡
 		mario = new Mario(this);
 
-		// ´´½¨±³¾°Í¼Æ¬
+		// åˆ›å»ºèƒŒæ™¯å›¾ç‰‡
 		bg = new BackgroundImage();
 
-		// ¶ÁÈ¡µØÍ¼£¬²¢ÅäÖÃµØÍ¼
-		relodeMap();
+		// è¯»å–åœ°å›¾
+		this.map = Map.readMap(mapName);
 
-		// ÂíÀï°Â¿ªÊ¼ÒÆ¶¯
-		mario.run();
+		// é…ç½®åœ°å›¾
+		loadMap();
 
-		//¿ªÆôÒ»¸öÏß³Ì¸ºÔğ½çÃæµÄ´°ÌåÖØ»æÏß³Ì
-		new Thread(){
-			public void run(){
-				while(true){
-					//ÖØ»æ´°Ìå
-					repaint(); // ×Ô¶¯´¥·¢µ±Ç°´°¿ÚÖĞµÄpaint·½·¨
-					//¼ì²é×Óµ¯ÊÇ·ñ³ö½ç
-					checkBoom();
-					try {
+		// å¼€å¯ä¸€ä¸ªçº¿ç¨‹è´Ÿè´£ç•Œé¢çš„çª—ä½“é‡ç»˜çº¿ç¨‹, è¢«ä¸­æ–­ååœæ­¢
+		this.repaintThread = new Thread() {
+			public void run() {
+				try {
+					while (!Thread.currentThread().isInterrupted()) {
+
+						// é‡ç»˜çª—ä½“
+						repaint(); // è‡ªåŠ¨è§¦å‘å½“å‰çª—å£ä¸­çš„paintæ–¹æ³•
+
+						// æ£€æŸ¥å­å¼¹æ˜¯å¦å‡ºç•Œ
+						checkBoom();
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
 					}
+
+				} catch (InterruptedException e) {
+
+				} finally {
+
 				}
 			}
-		}.start();
 
+		};
 
-		//ÉèÖÃ±³¾°ÒôÀÖ
-//		new Thread(new Runnable() {
-//			@Override
-//			public void run() {
-//				MusicUtil.playBackground();
-//			}
-//		}).start();
+		// è®¾ç½®èƒŒæ™¯éŸ³ä¹
+		this.musicThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				MusicUtil.playBackground();
+				try {
+					while (!Thread.currentThread().isInterrupted()) {
+						Thread.sleep(10000);
+					}
+					;
+				} catch (InterruptedException e) {
+
+				} finally {
+					MusicUtil.stop();
+				}
+			}
+		});
+	}
+	
+	public void start() {
+		this.setVisible(true);
+		// é©¬é‡Œå¥¥å¼€å§‹ç§»åŠ¨
+		mario.start();
+		repaintThread.start();
 	}
 
-	public void relodeMap(){
+	public void pause() {
 
-		for(Enemy e:enemyList) {
+	}
+
+	public void dispose() {
+		this.mario.dispose();
+		this.repaintThread.interrupt();
+		this.musicThread.interrupt();
+	}
+
+	public void loadMap() {
+
+		// åˆ†åˆ«å®šä¹‰:æ°´ç®¡ï¼Œé‡‘å¸,ç –å—ï¼Œè˜‘è‡ï¼Œåœ°åˆº
+		Enemy enemy;
+
+		for (Enemy e : enemyList) {
 			e.isDead = true;
 		}
 
@@ -94,52 +128,52 @@ public class GameFrame extends JFrame{
 
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
-				//¶Áµ½1£¬»­ÄàÍÁ
-				if(map[i][j]==1){
-					mud = new Mud(j*30,i*30,30,30,new ImageIcon("image/mud.jpeg").getImage());
-					enemyList.add(mud);
+				// è¯»åˆ°1ï¼Œç”»æ³¥åœŸ
+				if (map[i][j] == 1) {
+					enemy = new Mud(j * 30, i * 30, 30, 30, new ImageIcon("image/mud.jpeg").getImage());
+					enemyList.add(enemy);
 				}
-				//¶ÁÈ¡µ½µÄÊÇ2£¬»­×©Í·
-				if(map[i][j]==2){
-					brick = new Brick(j*30,i*30,30,30,new ImageIcon("image/brick.png").getImage());
-					enemyList.add(brick);
+				// è¯»å–åˆ°çš„æ˜¯2ï¼Œç”»ç –å¤´
+				if (map[i][j] == 2) {
+					enemy = new Brick(j * 30, i * 30, 30, 30, new ImageIcon("image/brick.png").getImage());
+					enemyList.add(enemy);
 				}
-				//¶Áµ½3»­½ğ±Ò×©¿é
-				if(map[i][j]==3){
-					cionBrick = new CoinBrick(j*30,i*30,30,30,new ImageIcon("image/coin_brick.png").getImage());
-					enemyList.add(cionBrick);
+				// è¯»åˆ°3ç”»é‡‘å¸ç –å—
+				if (map[i][j] == 3) {
+					enemy = new CoinBrick(j * 30, i * 30, 30, 30, new ImageIcon("image/coin_brick.png").getImage());
+					enemyList.add(enemy);
 				}
-				//¶Áµ½4»­Ë®¹Ü
-				if(map[i][j]==4){
-					pipe = new Pipe(j*30,i*30,60,120,new ImageIcon("image/pipe.png").getImage());
-					enemyList.add(pipe);
+				// è¯»åˆ°4ç”»æ°´ç®¡
+				if (map[i][j] == 4) {
+					enemy = new Pipe(j * 30, i * 30, 60, 120, new ImageIcon("image/pipe.png").getImage());
+					enemyList.add(enemy);
 				}
-				//¶Áµ½5»­Ä¢¹½
-				if (map[i][j]==5){
-					mashroom = new Mashroom(j*30+5,i*30+10,20,20,new ImageIcon("image/mogu.png").getImage());
-					enemyList.add(mashroom);
+				// è¯»åˆ°5ç”»è˜‘è‡
+				if (map[i][j] == 5) {
+					enemy = new Mashroom(j * 30 + 5, i * 30 + 10, 20, 20, new ImageIcon("image/mogu.png").getImage());
+					enemyList.add(enemy);
 				}
-				//¶Áµ½6»­ÎÚ¹ê
-				if (map[i][j]==6){
-					turtle = new Turtle(j*30,i*30,30,30,2.5,new ImageIcon("image/turtle.png").getImage(),this);
-					enemyList.add(turtle);
-					((Turtle)turtle).move();
+				// è¯»åˆ°6ç”»ä¹Œé¾Ÿ
+				if (map[i][j] == 6) {
+					enemy = new Turtle(j * 30, i * 30, 30, 30, 2.5, new ImageIcon("image/turtle.png").getImage(), this);
+					enemyList.add(enemy);
+					((Turtle) enemy).move();
 				}
-				//¶Áµ½7»­µØ´Ì
-				if (map[i][j]==7){
-					trap = new Trap(j*30,i*30+15,30,15,new ImageIcon("image/trap.png").getImage());
-					enemyList.add(trap);
+				// è¯»åˆ°7ç”»åœ°åˆº
+				if (map[i][j] == 7) {
+					enemy = new Trap(j * 30, i * 30 + 15, 30, 15, new ImageIcon("image/trap.png").getImage());
+					enemyList.add(enemy);
 				}
-				//¶Áµ½8»­ÃÛ·ä
-				if (map[i][j]==8){
-					bee = new Bee(j*30,i*30,30,30,2,150,new ImageIcon("image/bee.png").getImage(),this);
-					enemyList.add(bee);
-					((Bee)bee).move();
+				// è¯»åˆ°8ç”»èœœèœ‚
+				if (map[i][j] == 8) {
+					enemy = new Bee(j * 30, i * 30, 30, 30, 2, 150, new ImageIcon("image/bee.png").getImage(), this);
+					enemyList.add(enemy);
+					((Bee) enemy).move();
 				}
-				//¶Áµ½9»­ÖÕµãflag
-				if(map[i][j]==9){
-					flag = new Flag(j*30,i*30,30,30,new ImageIcon("image/flag.png").getImage());
-					enemyList.add(flag);
+				// è¯»åˆ°9ç”»ç»ˆç‚¹flag
+				if (map[i][j] == 9) {
+					enemy = new Flag(j * 30, i * 30, 30, 30, new ImageIcon("image/flag.png").getImage());
+					enemyList.add(enemy);
 				}
 			}
 		}
@@ -147,53 +181,50 @@ public class GameFrame extends JFrame{
 
 	public void paint(Graphics g) {
 		try {
-			//ÀûÓÃË«»º³å»­±³¾°Í¼Æ¬ºÍÂíÀï°Â
+			// åˆ©ç”¨åŒç¼“å†²ç”»èƒŒæ™¯å›¾ç‰‡å’Œé©¬é‡Œå¥¥
 			BufferedImage bi = (BufferedImage) this.createImage(this.getSize().width, this.getSize().height);
 			Graphics big = bi.getGraphics();
 
 			big.drawImage(bg.img, bg.x, bg.y, null);
 
-
-			// ¿ªÊ¼»æÖÆ½çÃæÉÏµÄµĞÈË¡£
+			// å¼€å§‹ç»˜åˆ¶ç•Œé¢ä¸Šçš„æ•Œäººã€‚
 			for (int i = 0; i < enemyList.size(); i++) {
 				Enemy e = enemyList.get(i);
 				big.drawImage(e.img, e.x, e.y, e.width, e.height, null);
 			}
 
-
-			//»­×Óµ¯
+			// ç”»å­å¼¹
 			for (int i = 0; i < boomList.size(); i++) {
 				Boom b = boomList.get(i);
 				Color c = big.getColor();
-				if (b instanceof Beeboom){
-					Beeboom bb = (Beeboom)b;
-					bb.x+=bb.xspeed;
-					bb.yspeed+=0.15;
-					bb.y+=bb.yspeed;
+				if (b instanceof Beeboom) {
+					Beeboom bb = (Beeboom) b;
+					bb.x += bb.xspeed;
+					bb.yspeed += 0.15;
+					bb.y += bb.yspeed;
 					big.setColor(Color.black);
 					big.fillOval(bb.x, bb.y, bb.width, bb.width);
-				}else {
+				} else {
 					big.setColor(Color.yellow);
-					big.fillOval(b.x+=b.speed, b.y, b.width, b.width);
+					big.fillOval(b.x += b.speed, b.y, b.width, b.width);
 				}
 
-				if(b.hit())boomList.remove(b);
+				if (b.hit())
+					boomList.remove(b);
 				big.setColor(c);
 			}
 
-
-			//»­ÈËÎïmario
+			// ç”»äººç‰©mario
 
 			big.drawImage(mario.img, mario.x, mario.y, mario.width, mario.height, null);
 
-
-			//»­½ğ±ÒÊıÁ¿±êÇ©
+			// ç”»é‡‘å¸æ•°é‡æ ‡ç­¾
 			Color c = big.getColor();
 			big.setColor(Color.black);
 			big.drawString("Coins:" + mario.coinNum, 50, 50);
 			big.setColor(c);
 
-			//»­ËÀÍöÏûÏ¢
+			// ç”»æ­»äº¡æ¶ˆæ¯
 			if (mario.isDead) {
 				c = big.getColor();
 				big.setColor(Color.red);
@@ -201,7 +232,7 @@ public class GameFrame extends JFrame{
 				big.setColor(c);
 			}
 
-			//»­Ê¤ÀûÏûÏ¢
+			// ç”»èƒœåˆ©æ¶ˆæ¯
 			if (mario.isWin) {
 				c = big.getColor();
 				big.setColor(Color.yellow);
@@ -210,17 +241,17 @@ public class GameFrame extends JFrame{
 			}
 
 			g.drawImage(bi, 0, 0, null);
-		}catch (Exception e){
+		} catch (Exception e) {
 			System.out.println("Loading map...");
 		}
 
 	}
 
-	//¼ì²é×Óµ¯ÊÇ·ñ³ö½ç£¬³ö½çÔò´ÓÈİÆ÷ÖĞÒÆ³ı
-	public void checkBoom(){
+	// æ£€æŸ¥å­å¼¹æ˜¯å¦å‡ºç•Œï¼Œå‡ºç•Œåˆ™ä»å®¹å™¨ä¸­ç§»é™¤
+	public void checkBoom() {
 		for (int i = 0; i < boomList.size(); i++) {
 			Boom b = boomList.get(i);
-			if(b.x<0 || b.x>800||b.y>450){
+			if (b.x < 0 || b.x > 800 || b.y > 450) {
 				boomList.remove(i);
 			}
 		}

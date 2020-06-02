@@ -1,6 +1,6 @@
 package com.util;
 
-import org.junit.Test;
+// import org.junit.*;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -8,47 +8,45 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-//µØÍ¼ÅäÖÃÀà
+//åœ°å›¾é…ç½®ç±»
 public class Map {
 
-    //Êı¾İÈİÆ÷
-    public List<String> list = new ArrayList<>();
+    // å•å…ƒæµ‹è¯•ï¼šéªŒè¯Mapç±»çš„readMap()æ–¹æ³•ç¡®å®æŠŠåœ°å›¾é…ç½®æ–‡ä»¶map.txt
+    // åŠ è½½æˆäº†äºŒç»´æ•°ç»„
+    // @Test
+    // public void testResult() throws Exception {
+    // int[][] result = readMap("map.txt");
+    // // äºŒç»´æ•°ç»„çš„å†…å®¹è¾“å‡ºï¼Œçœ‹ä¸€ä¸‹æ˜¯å¦æ˜¯åœ°å›¾çš„é…ç½®ä¿¡æ¯
+    // for (int i = 0; i < result.length; i++) {
+    // for (int j = 0; j < result[i].length; j++) {
+    // System.out.print(result[i][j] + " ");
+    // }
+    // System.out.println();
+    // }
+    // }
 
-    // ¶şÎ¬Êı×éÔªËØÓÖÊÇÒ»¸öÒ»Î¬Êı×é£ºĞĞÁĞ¾ØÕó
-    public int[][] map = null;
+    // æ”¯æŒè‡ªå®šä¹‰åœ°å›¾æ–‡ä»¶åå­—ï¼Œä¾¿åˆ©å¤šåœ°å›¾è°ƒç”¨
 
-    // µ¥Ôª²âÊÔ£ºÑéÖ¤MapÀàµÄreadMap()·½·¨È·Êµ°ÑµØÍ¼ÅäÖÃÎÄ¼şmap.txt
-    // ¼ÓÔØ³ÉÁË¶şÎ¬Êı×é
-    @Test
-    public void testResult() throws Exception {
-        int[][] result = readMap();
-        // ¶şÎ¬Êı×éµÄÄÚÈİÊä³ö£¬¿´Ò»ÏÂÊÇ·ñÊÇµØÍ¼µÄÅäÖÃĞÅÏ¢
-        for(int i = 0 ; i < result.length ; i++ ){
-            for(int j = 0 ; j < result[i].length ; j++) {
-                System.out.print(result[i][j]+" ");
-            }
-            System.out.println();
-        }
-    }
-
-    public int[][] readMap() throws Exception {
-        // ¹¹ÔìÎÄ¼şÊäÈëÁ÷
-        FileInputStream fis = new FileInputStream("map.txt");
+    public static int[][] readMap(String name) throws Exception {
+        List<String> list = new ArrayList<>();
+        int[][] map = null;
+        // æ„é€ æ–‡ä»¶è¾“å…¥æµ
+        FileInputStream fis = new FileInputStream(name);
         InputStreamReader isr = new InputStreamReader(fis);
         BufferedReader br = new BufferedReader(isr);
 
-        //Ö±½Ó¶ÁÈ¡Ò»ĞĞÊı¾İ
+        // ç›´æ¥è¯»å–ä¸€è¡Œæ•°æ®
         String value = br.readLine();
 
         while (value != null) {
-            //½«¶ÁÈ¡µ½µÄÒ»ĞĞÊı¾İ¼ÓÈëµ½ÈİÆ÷ÖĞ
+            // å°†è¯»å–åˆ°çš„ä¸€è¡Œæ•°æ®åŠ å…¥åˆ°å®¹å™¨ä¸­
             list.add(value);
             value = br.readLine();
         }
 
         br.close();
 
-        //µÃµ½¶àÉÙĞĞ¶àÉÙÁĞ
+        // å¾—åˆ°å¤šå°‘è¡Œå¤šå°‘åˆ—
         int row = list.size();
         int cloum = 0;
 
@@ -58,10 +56,9 @@ public class Map {
             cloum = values.length;
         }
 
-
         map = new int[row][cloum];
 
-        //½«¶Áµ½µÄ×Ö·û´´×ª»»³ÉÕûÊı£¬²¢¸³Öµ¸ø¶şÎ»Êı×émap
+        // å°†è¯»åˆ°çš„å­—ç¬¦åˆ›è½¬æ¢æˆæ•´æ•°ï¼Œå¹¶èµ‹å€¼ç»™äºŒä½æ•°ç»„map
         for (int i = 0; i < list.size(); i++) {
             String str = list.get(i);
             String[] values = str.split(",");
@@ -71,6 +68,5 @@ public class Map {
         }
         return map;
     }
-
 
 }

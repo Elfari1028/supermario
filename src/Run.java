@@ -1,15 +1,18 @@
 import com.ui.GameFrame;
+import com.ui.Window;
 import com.util.KeyListener;
+
 /*
-  ³¬¼¶ÂêÀöÆô¶¯Àà¡£
+  è¶…çº§ç›ä¸½å¯åŠ¨ç±»ã€‚
  */
 public class Run {
-	//Ö÷º¯Êı£¬³ÌĞòÈë¿Ú
+	// ä¸»å‡½æ•°ï¼Œç¨‹åºå…¥å£
 	public static void main(String[] args) throws Exception {
-			GameFrame gf = new GameFrame();
-			// ´´½¨¼àÌıÆ÷¶ÔÏó
-			KeyListener kl = new KeyListener(gf);
-			// ¸ø´°ÌåÌí¼Ó¼üÅÌ¼àÌıÆ÷
-			gf.addKeyListener(kl);
+		// GameFrame gf = new GameFrame();
+		Window.instance.run();
+		// åˆ›å»ºç›‘å¬å™¨å¯¹è±¡
+		// KeyListener kl = new KeyListener(gf);
+		// ç»™çª—ä½“æ·»åŠ é”®ç›˜ç›‘å¬å™¨
+		// gf.addKeyListener(kl);
 	}
 }

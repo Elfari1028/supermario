@@ -8,54 +8,60 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 
+//é”®ç›˜æŒ‰ä¸‹ç›‘å¬ç±»
+public class KeyListener extends KeyAdapter {
 
-//¼üÅÌ°´ÏÂ¼àÌıÀà
-public class KeyListener extends KeyAdapter{
-
-	// ½ÓÊÕµ½ÁËµ±Ç°Ö÷½çÃæ£ºÓÎÏ·½çÃæ
+	// æ¥æ”¶åˆ°äº†å½“å‰ä¸»ç•Œé¢ï¼šæ¸¸æˆç•Œé¢
 	public GameFrame gf;
+	public Callback callback;
 
-	public KeyListener(GameFrame gf) {
+	public KeyListener(GameFrame gf, Callback escCallback) {
 		this.gf = gf;
+		this.callback = escCallback;
 	}
-	
-	//¼üÅÌ¼àÌı
+
+	// é”®ç›˜ç›‘å¬
 	public void keyPressed(KeyEvent e) {
 		int code = e.getKeyCode();
-		switch(code){
-			//ÏòÓÒ×ß
+		switch (code) {
+			// å‘å³èµ°
 			case 39:
-				gf.mario.right=true; // ĞÅºÅÎ»
+				gf.mario.right = true; // ä¿¡å·ä½
 				break;
-			//Ïò×ó×ß
+			// å‘å·¦èµ°
 			case 37:
-				gf.mario.left=true;
+				gf.mario.left = true;
 				break;
 			case 66:
-				if (!gf.mario.isDead) gf.mario.addBoom();
+				if (!gf.mario.isDead)
+					gf.mario.addBoom();
 				break;
-			//ÏòÉÏÌø
+			// å‘ä¸Šè·³
 			case 38:
-				gf.mario.up=true;
+				gf.mario.up = true;
 				break;
 			case 82:
 				gf.mario.revive();
+				break;
+			case 0x1B:
+				gf.removeKeyListener(this);
+				callback.execute();
 		}
 	}
 
-	//¼üÅÌÊÍ·Å¼àÌı
+	// é”®ç›˜é‡Šæ”¾ç›‘å¬
 	public void keyReleased(KeyEvent e) {
-		int code=e.getKeyCode();
-		if(code==39){
-			gf.mario.right=false;
-			gf.mario.img=new ImageIcon("image/mari1.png").getImage();
+		int code = e.getKeyCode();
+		if (code == 39) {
+			gf.mario.right = false;
+			gf.mario.img = new ImageIcon("image/mari1.png").getImage();
 		}
-		if(code==37){
-			gf.mario.left=false;
-			gf.mario.img=new ImageIcon("image/mari_left1.png").getImage();
+		if (code == 37) {
+			gf.mario.left = false;
+			gf.mario.img = new ImageIcon("image/mari_left1.png").getImage();
 		}
-		if(code==38){
-			gf.mario.up=false;
+		if (code == 38) {
+			gf.mario.up = false;
 		}
 
 	}

@@ -21,9 +21,13 @@ public class MusicUtil {
     }
 
     // 播放
-    public static void playBackground(){
+    public static void playBackground() {
         //循环播放
         clip.setFramePosition(0);
         clip.loop(Clip.LOOP_CONTINUOUSLY);
+    }
+    
+    public static void stop() {
+        clip.close();
     }
 }
