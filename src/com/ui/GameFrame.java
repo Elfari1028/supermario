@@ -17,6 +17,9 @@ import com.util.MusicUtil;
 public class GameFrame extends JFrame {
 	// 超级玛丽:界面需要一个超级玛丽的。
 	public Mario mario;
+	public Mario luigi;
+
+	public boolean isMultiplayer;
 
 	// 背景图片
 	public BackgroundImage bg;
@@ -33,7 +36,7 @@ public class GameFrame extends JFrame {
 	public Thread musicThread;
 
 	// 构造函数里面初始化背景图片和马里奥对象
-	public GameFrame(String mapName) throws Exception {
+	public GameFrame(String mapName, boolean isMultiplayer) throws Exception {
 		// 初始化窗体相关属性信息数据
 		// this代表了当前主界面对象。
 		this.setSize(800, 450);
@@ -43,8 +46,11 @@ public class GameFrame extends JFrame {
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+		this.isMultiplayer = isMultiplayer;
 		// 创建玛丽对象
 		mario = new Mario(this);
+		if (isMultiplayer)
+			luigi = new Mario(this);
 
 		// 创建背景图片
 		bg = new BackgroundImage();
@@ -101,6 +107,8 @@ public class GameFrame extends JFrame {
 		this.setVisible(true);
 		// 马里奥开始移动
 		mario.start();
+		if (isMultiplayer)
+			luigi.start();
 		repaintThread.start();
 	}
 
@@ -110,6 +118,8 @@ public class GameFrame extends JFrame {
 
 	public void dispose() {
 		this.mario.dispose();
+		if (isMultiplayer)
+			this.luigi.dispose();
 		if (this.repaintThread != null && this.repaintThread.isAlive())
 			this.repaintThread.interrupt();
 		if (this.repaintThread != null && this.musicThread.isAlive())
@@ -222,6 +232,8 @@ public class GameFrame extends JFrame {
 			// 画人物mario
 
 			big.drawImage(mario.img, mario.x, mario.y, mario.width, mario.height, null);
+			if (isMultiplayer)
+				big.drawImage(luigi.img, luigi.x, luigi.y, luigi.width, luigi.height, null);
 
 			// 画金币数量标签
 			Color c = big.getColor();
@@ -230,7 +242,7 @@ public class GameFrame extends JFrame {
 			big.setColor(c);
 
 			// 画死亡消息
-			if (mario.isDead) {
+			if (mario.isDead && (!isMultiplayer || (isMultiplayer && luigi.isDead))) {
 				c = big.getColor();
 				big.setColor(Color.red);
 				big.drawString("You are dead, Please press R", 300, 220);
@@ -238,16 +250,17 @@ public class GameFrame extends JFrame {
 			}
 
 			// 画胜利消息
-			if (mario.isWin) {
+			if ((mario.isWin && !isMultiplayer) || (isMultiplayer && luigi.isWin)) {
 				c = big.getColor();
 				big.setColor(Color.yellow);
-				big.drawString("You are win, Press R to restart", 300, 220);
+				big.drawString("You won, Press R to restart", 300, 220);
 				big.setColor(c);
 			}
 
 			g.drawImage(bi, 0, 0, null);
 		} catch (Exception e) {
 			System.out.println("Loading map...");
+			// System.out.println(e.getMessage());
 		}
 
 	}

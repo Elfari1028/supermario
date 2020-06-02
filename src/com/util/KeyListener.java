@@ -32,16 +32,36 @@ public class KeyListener extends KeyAdapter {
 			case 37:
 				gf.mario.left = true;
 				break;
-			case 66:
-				if (!gf.mario.isDead)
+			case 66: // B 单人模式加Mario子弹 对人为Luigi
+				if (!gf.mario.isDead && !gf.isMultiplayer)
+					gf.mario.addBoom();
+				else if (gf.isMultiplayer && !gf.luigi.isDead)
+					gf.luigi.addBoom();
+				break;
+			case 77:
+				if (gf.isMultiplayer && !gf.mario.isDead)
 					gf.mario.addBoom();
 				break;
-			// 向上跳
+				// 向上跳
 			case 38:
 				gf.mario.up = true;
 				break;
 			case 82:
 				gf.mario.revive();
+				if (gf.isMultiplayer)
+					gf.luigi.revive();
+				break;
+			case 87: // W
+				if (gf.isMultiplayer)
+					gf.luigi.up = true;
+				break;
+			case 65: // A
+				if (gf.isMultiplayer)
+					gf.luigi.left = true;
+				break;
+			case 68: // D
+				if (gf.isMultiplayer)
+					gf.luigi.right = true;
 				break;
 			case 0x1B:
 				gf.removeKeyListener(this);
@@ -52,18 +72,37 @@ public class KeyListener extends KeyAdapter {
 	// 键盘释放监听
 	public void keyReleased(KeyEvent e) {
 		int code = e.getKeyCode();
-		if (code == 39) {
-			gf.mario.right = false;
-			gf.mario.img = new ImageIcon("image/mari1.png").getImage();
-		}
-		if (code == 37) {
-			gf.mario.left = false;
-			gf.mario.img = new ImageIcon("image/mari_left1.png").getImage();
-		}
-		if (code == 38) {
-			gf.mario.up = false;
-		}
+		switch (code) {
+			case 39:
+				gf.mario.right = false;
+				gf.mario.img = new ImageIcon("image/mari1.png").getImage();
+				break;
+			case 37:
+				gf.mario.left = false;
+				gf.mario.img = new ImageIcon("image/mari_left1.png").getImage();
+				break;
+			case 38:
+				gf.mario.up = false;
+				break;
+			case 87: // W
+				if (!gf.isMultiplayer)
+					break;
+				gf.luigi.up = false;
+				break;
+			case 65:// A
+				if (!gf.isMultiplayer)
+					break;
+				gf.luigi.left = false;
+				gf.luigi.img = new ImageIcon("image/mari_left1.png").getImage();
+				break;
+			case 68: // D
+				if (!gf.isMultiplayer)
+					break;
+				gf.luigi.right = false;
+				gf.luigi.img = new ImageIcon("image/mari1.png").getImage();
+				break;
 
+		}
 	}
 
 }

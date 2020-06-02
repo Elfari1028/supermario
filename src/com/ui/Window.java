@@ -23,27 +23,28 @@ public class Window {
 
         JPanel panel = new JPanel(new FlowLayout());
 
-        panel.add(createButton("Level 1", "map.txt"));
-        panel.add(createButton("Level 2", "map.txt"));
-        panel.add(createButton("Level 3", "map.txt"));
+        panel.add(createButton("Level 1", "map.txt",false));
+        panel.add(createButton("Level 2", "map.txt",false));
+        panel.add(createButton("Level 3", "map.txt", false));
+        panel.add(createButton("Multiplayer", "map.txt", true));
         mainFrame.add(panel);
     }
 
-    private JButton createButton(String title, String mapName) {
+    private JButton createButton(String title, String mapName, boolean isMultiplayer) {
         JButton button = new JButton(title);
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                onButtonPressed(title, mapName);
+                onButtonPressed(title, mapName,isMultiplayer);
             }
         });
         return button;
     }
 
-    private void onButtonPressed(String buttonTitle, String mapName) {
+    private void onButtonPressed(String buttonTitle, String mapName,boolean isMultiplayer) {
         if (gameFrame != null)
             gameFrame.dispose();
         try {
-            gameFrame = new GameFrame(mapName);
+            gameFrame = new GameFrame(mapName,isMultiplayer);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
