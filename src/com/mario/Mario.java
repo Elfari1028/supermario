@@ -201,7 +201,7 @@ public class Mario {
 				jumpFlag = true;
 			}
 		};
-		this.jumpThread.run();
+		this.jumpThread.start();
 	}
 
 	// 向上跳的函数
