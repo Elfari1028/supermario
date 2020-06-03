@@ -27,6 +27,8 @@ public class GameFrame extends JFrame {
 	public ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	// 定义一个集合容器装子弹
 	public ArrayList<Boom> boomList = new ArrayList<Boom>();
+	// 定义一个集合容器装检查点
+	public ArrayList<CheckPoint> checkPointList = new ArrayList<CheckPoint>();
 
 	// 地图数据
 	public int[][] map = null;
@@ -59,7 +61,7 @@ public class GameFrame extends JFrame {
 		this.map = Map.readMap(mapName);
 
 		// 配置地图
-		loadMap();
+		loadMap(0);
 
 		// 开启一个线程负责界面的窗体重绘线程, 被中断后停止
 		this.repaintThread = new Thread() {
@@ -129,7 +131,8 @@ public class GameFrame extends JFrame {
 		}
 	}
 
-	public void loadMap() {
+	//x表示初始时的偏移量，用于适配检查点复活
+	public void loadMap(int x) {
 
 		// 分别定义:水管，金币,砖块，蘑菇，地刺
 		Enemy enemy;
@@ -140,55 +143,61 @@ public class GameFrame extends JFrame {
 
 		enemyList.clear();
 		boomList.clear();
+		checkPointList.clear();
 
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
 				// 读到1，画泥土
 				if (map[i][j] == 1) {
-					enemy = new Mud(j * 30, i * 30, 30, 30, new ImageIcon("image/mud.jpeg").getImage());
+					enemy = new Mud(j * 30 + x, i * 30, 30, 30, new ImageIcon("image/mud.jpeg").getImage());
 					enemyList.add(enemy);
 				}
 				// 读取到的是2，画砖头
 				if (map[i][j] == 2) {
-					enemy = new Brick(j * 30, i * 30, 30, 30, new ImageIcon("image/brick.png").getImage());
+					enemy = new Brick(j * 30 + x, i * 30, 30, 30, new ImageIcon("image/brick.png").getImage());
 					enemyList.add(enemy);
 				}
 				// 读到3画金币砖块
 				if (map[i][j] == 3) {
-					enemy = new CoinBrick(j * 30, i * 30, 30, 30, new ImageIcon("image/coin_brick.png").getImage());
+					enemy = new CoinBrick(j * 30 + x, i * 30, 30, 30, new ImageIcon("image/coin_brick.png").getImage());
 					enemyList.add(enemy);
 				}
 				// 读到4画水管
 				if (map[i][j] == 4) {
-					enemy = new Pipe(j * 30, i * 30, 60, 120, new ImageIcon("image/pipe.png").getImage());
+					enemy = new Pipe(j * 30 + x, i * 30, 60, 120, new ImageIcon("image/pipe.png").getImage());
 					enemyList.add(enemy);
 				}
 				// 读到5画蘑菇
 				if (map[i][j] == 5) {
-					enemy = new Mashroom(j * 30 + 5, i * 30 + 10, 20, 20, new ImageIcon("image/mogu.png").getImage());
+					enemy = new Mashroom(j * 30 + 5 + x, i * 30 + 10, 20, 20, new ImageIcon("image/mogu.png").getImage());
 					enemyList.add(enemy);
 				}
 				// 读到6画乌龟
 				if (map[i][j] == 6) {
-					enemy = new Turtle(j * 30, i * 30, 30, 30, 2.5, new ImageIcon("image/turtle.png").getImage(), this);
+					enemy = new Turtle(j * 30 + x, i * 30, 30, 30, 2.5, new ImageIcon("image/turtle.png").getImage(), this);
 					enemyList.add(enemy);
 					((Turtle) enemy).start();
 				}
 				// 读到7画地刺
 				if (map[i][j] == 7) {
-					enemy = new Trap(j * 30, i * 30 + 15, 30, 15, new ImageIcon("image/trap.png").getImage());
+					enemy = new Trap(j * 30 + x, i * 30 + 15, 30, 15, new ImageIcon("image/trap.png").getImage());
 					enemyList.add(enemy);
 				}
 				// 读到8画蜜蜂
 				if (map[i][j] == 8) {
-					enemy = new Bee(j * 30, i * 30, 30, 30, 2, 150, new ImageIcon("image/bee.png").getImage(), this);
+					enemy = new Bee(j * 30 + x, i * 30, 30, 30, 2, 150, new ImageIcon("image/bee.png").getImage(), this);
 					enemyList.add(enemy);
 					((Bee) enemy).start();
 				}
 				// 读到9画终点flag
 				if (map[i][j] == 9) {
-					enemy = new Flag(j * 30, i * 30, 30, 30, new ImageIcon("image/flag.png").getImage());
+					enemy = new Flag(j * 30 + x, i * 30, 30, 30, new ImageIcon("image/flag.png").getImage());
 					enemyList.add(enemy);
+				}
+				//读到10画检查点
+				if (map[i][j] == 10){
+					CheckPoint checkPoint = new CheckPoint( j * 30 + x, i * 30, 30, 30, new ImageIcon("image/checkpoint.png").getImage());
+					checkPointList.add(checkPoint);
 				}
 			}
 		}
@@ -206,6 +215,12 @@ public class GameFrame extends JFrame {
 			for (int i = 0; i < enemyList.size(); i++) {
 				Enemy e = enemyList.get(i);
 				big.drawImage(e.img, e.x, e.y, e.width, e.height, null);
+			}
+
+			//绘制检查点
+			for (int i=0; i<checkPointList.size(); i++){
+				CheckPoint c = checkPointList.get(i);
+				big.drawImage(c.img, c.x, c.y, c.width, c.height,null);
 			}
 
 			// 画子弹
@@ -250,10 +265,20 @@ public class GameFrame extends JFrame {
 			}
 
 			// 画胜利消息
-			if ((mario.isWin && !isMultiplayer) || (isMultiplayer && luigi.isWin)) {
+			if (!isMultiplayer&&mario.isWin) {
 				c = big.getColor();
 				big.setColor(Color.yellow);
 				big.drawString("You won, Press R to restart", 300, 220);
+				big.setColor(c);
+			}else if(isMultiplayer&&mario.isWin&&luigi.isWin){
+				c = big.getColor();
+				big.setColor(Color.yellow);
+				big.drawString("Both of you won, Press R to restart", 300, 220);
+				big.setColor(c);
+			}else if((isMultiplayer && luigi.isWin && mario.isDead) || (isMultiplayer && luigi.isDead && mario.isWin)){
+				c = big.getColor();
+				big.setColor(Color.yellow);
+				big.drawString("Only one of you won, Press R to restart", 300, 220);
 				big.setColor(c);
 			}
 

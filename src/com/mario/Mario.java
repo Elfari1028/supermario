@@ -18,8 +18,10 @@ public class Mario {
 	public boolean jumpFlag = true;
 	// 重力加速度
 	public double g = 0.15;
-	// 马里奥的坐标
+	// 马里奥的初始坐标
 	public int x = 180, y = 200;
+	// 马里奥的复活坐标
+	public int reviveX = 180, reviveY = 200, reviveMapX=0;
 	// 马里奥的速度
 	public double xspeed = 5, yspeed = 6;
 	// 马里奥的宽高
@@ -30,13 +32,17 @@ public class Mario {
 	public boolean isFaceRight = true;
 	// 马里奥是否变大
 	public boolean isBig = false;
+	// 存档时马里奥的大小
+	public boolean bigRecord = false;
 	// 马里奥的金币数量
 	public int coinNum = 0;
+	// 上一个存档的的金币数量
+	public int coinRecord = 0;
 	// 马里奥是否死亡
 	public boolean isDead = false;
 	// 马里奥是否通关
 	public boolean isWin = false;
-
+	// 马里奥移动标志
 	public boolean left = false, right = false, down = false, up = false;
 
 	public String Dir_Up = "Up", Dir_Left = "Left", Dir_Right = "Right", Dir_Down = "Down";
@@ -58,19 +64,27 @@ public class Mario {
 
 	// 重生
 	public void revive() {
-		isWin = false;
-		isDead = false;
-		coinNum = 0;
-		jumpFlag = true;
-		isBig = false;
-		width = 25;
-		height = 30;
-		this.x = 200;
-		this.y = 180;
-		// 背景归位
-		gf.bg.x = 0;
-		// 重新加载地图
-		gf.loadMap();
+			//没有胜利复活，金币数量等于存档时的金币数量，大小等于存档的大小，并且不能往地图走
+			//胜利复活，金币=0，大小正常，回到原点
+			coinNum = isWin?0:coinRecord;
+			isBig = isWin?false:bigRecord;
+			if (isBig){
+				width = 30;
+				height = 36;
+			}else {
+				width = 25;
+				height = 30;
+			}
+			jumpFlag = true;
+			this.x = reviveX;
+			this.y = reviveY;
+			// 背景归位
+			gf.bg.x = reviveMapX;
+			// 重新加载地图
+			gf.loadMap(reviveMapX);
+			mapLeft = reviveMapX;
+			isWin = false;
+			isDead = false;
 	}
 
 	public void dispose() {
@@ -79,7 +93,7 @@ public class Mario {
 		if(this.gravityThread != null && this.gravityThread.isAlive())this.gravityThread.interrupt();
 	}
 
-	// 玛丽移动的逻辑在这里
+	// 玛丽移动的逻辑
 	public void initRun() {
 		this.runThread = new Thread() {
 			public void run() {
@@ -93,6 +107,7 @@ public class Mario {
 						}
 						continue;
 					}
+					hitCheckPoint();
 					// 向左走
 					if (left) {
 						isFaceRight = false;
@@ -120,6 +135,11 @@ public class Mario {
 								for (int i = 0; i < gf.boomList.size(); i++) {
 									Boom b = gf.boomList.get(i);
 									b.x += xspeed;
+								}
+								//检查点向右移动
+								for (int i = 0; i < gf.checkPointList.size(); i++){
+									CheckPoint c = gf.checkPointList.get(i);
+									c.x +=xspeed;
 								}
 								img = new ImageIcon("image/mari_left.gif").getImage();
 							} else {
@@ -161,6 +181,11 @@ public class Mario {
 									Boom b = gf.boomList.get(i);
 									b.x -= xspeed;
 								}
+								//检查点向左移动
+								for (int i = 0; i < gf.checkPointList.size(); i++){
+									CheckPoint c = gf.checkPointList.get(i);
+									c.x -=xspeed;
+								}
 								img = new ImageIcon("image/mari_right.gif").getImage();
 							} else {
 								if (x <= 770) {
@@ -170,7 +195,7 @@ public class Mario {
 							}
 						}
 						xspeed = 5;
-					} else {// 即没有向左走，右没向右走
+					} else {// 即没有向左走，又没向右走
 						hit(Dir_Right);
 						hit(Dir_Left);
 					}
@@ -248,6 +273,30 @@ public class Mario {
 
 		}
 
+	}
+
+	// 检测是否与检查点相交（如果放在碰撞函数里，可能会出现穿模bug）
+	public void hitCheckPoint(){
+		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
+		Rectangle rect = null;
+
+		for (int i=0;i<gf.checkPointList.size();i++){
+			CheckPoint c = gf.checkPointList.get(i);
+			rect = new Rectangle(c.x,c.y,c.width,c.height);
+
+			//活的马里奥碰到未启动的检查点，则检查点启动并且刷新复活的位置
+			if (myrect.intersects(rect) && !isDead && !c.isActive) {
+				c.isActive = true;
+				c.img = new ImageIcon("image/checkpoint_active.png").getImage();
+				//设置复活坐标为检查点
+				reviveX = 180;
+				//稍微向上设置一些，防止卡住
+				reviveY = c.y - 10;
+				reviveMapX = gf.bg.x - (c.x - 180);
+				coinRecord=coinNum;
+				bigRecord=isBig;
+			}
+		}
 	}
 
 	// 检测碰撞
@@ -352,9 +401,14 @@ public class Mario {
 						isDead = true;
 						deadMove(2);
 					}
-					// 活的马里奥碰到flag，胜利
+					// 活的马里奥碰到flag，胜利,并且重置复活点和record
 					else if ((!isDead) && enemy instanceof Flag) {
 						isWin = true;
+						reviveX = 180;
+						reviveY = 200;
+						reviveMapX = 0;
+						coinRecord = 0;
+						bigRecord = false;
 					}
 
 					return true;

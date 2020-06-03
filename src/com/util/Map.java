@@ -63,7 +63,12 @@ public class Map {
             String str = list.get(i);
             String[] values = str.split(",");
             for (int j = 0; j < values.length; j++) {
-                map[i][j] = Integer.parseInt(values[j]);
+                try {
+                    map[i][j] = Integer.parseInt(values[j]);
+                }catch (Exception e){
+                    System.out.println("Map loads fail!");
+                }
+
             }
         }
         return map;
