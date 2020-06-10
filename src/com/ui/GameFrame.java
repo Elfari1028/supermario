@@ -15,12 +15,12 @@ import com.util.MusicUtil;
  */
 @SuppressWarnings("serial")
 public class GameFrame extends JFrame {
+	public int level;
 	// 超级玛丽:界面需要一个超级玛丽的。
 	public Mario mario;
 	public Mario luigi;
 
 	public boolean isMultiplayer;
-
 	// 背景图片
 	public BackgroundImage bg;
 	// 定义一个集合容器装敌人对象
@@ -38,7 +38,7 @@ public class GameFrame extends JFrame {
 	public Thread musicThread;
 
 	// 构造函数里面初始化背景图片和马里奥对象
-	public GameFrame(String mapName, boolean isMultiplayer) throws Exception {
+	public GameFrame(int level,String mapName, boolean isMultiplayer) throws Exception {
 		// 初始化窗体相关属性信息数据
 		// this代表了当前主界面对象。
 		this.setSize(800, 450);
@@ -48,12 +48,12 @@ public class GameFrame extends JFrame {
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+
 		this.isMultiplayer = isMultiplayer;
 		// 创建玛丽对象
 		mario = new Mario(this);
 		if (isMultiplayer)
 			luigi = new Mario(this);
-
 		// 创建背景图片
 		bg = new BackgroundImage();
 
@@ -131,7 +131,7 @@ public class GameFrame extends JFrame {
 		}
 	}
 
-	//x表示初始时的偏移量，用于适配检查点复活
+	// x表示初始时的偏移量，用于适配检查点复活
 	public void loadMap(int x) {
 
 		// 分别定义:水管，金币,砖块，蘑菇，地刺
@@ -169,12 +169,14 @@ public class GameFrame extends JFrame {
 				}
 				// 读到5画蘑菇
 				if (map[i][j] == 5) {
-					enemy = new Mashroom(j * 30 + 5 + x, i * 30 + 10, 20, 20, new ImageIcon("image/mogu.png").getImage());
+					enemy = new Mashroom(j * 30 + 5 + x, i * 30 + 10, 20, 20,
+							new ImageIcon("image/mogu.png").getImage());
 					enemyList.add(enemy);
 				}
 				// 读到6画乌龟
 				if (map[i][j] == 6) {
-					enemy = new Turtle(j * 30 + x, i * 30, 30, 30, 2.5, new ImageIcon("image/turtle.png").getImage(), this);
+					enemy = new Turtle(j * 30 + x, i * 30, 30, 30, 2.5, new ImageIcon("image/turtle.png").getImage(),
+							this);
 					enemyList.add(enemy);
 					((Turtle) enemy).start();
 				}
@@ -185,7 +187,8 @@ public class GameFrame extends JFrame {
 				}
 				// 读到8画蜜蜂
 				if (map[i][j] == 8) {
-					enemy = new Bee(j * 30 + x, i * 30, 30, 30, 2, 150, new ImageIcon("image/bee.png").getImage(), this);
+					enemy = new Bee(j * 30 + x, i * 30, 30, 30, 2, 150, new ImageIcon("image/bee.png").getImage(),
+							this);
 					enemyList.add(enemy);
 					((Bee) enemy).start();
 				}
@@ -194,9 +197,10 @@ public class GameFrame extends JFrame {
 					enemy = new Flag(j * 30 + x, i * 30, 30, 30, new ImageIcon("image/flag.png").getImage());
 					enemyList.add(enemy);
 				}
-				//读到10画检查点
-				if (map[i][j] == 10){
-					CheckPoint checkPoint = new CheckPoint( j * 30 + x, i * 30, 30, 30, new ImageIcon("image/checkpoint.png").getImage());
+				// 读到10画检查点
+				if (map[i][j] == 10) {
+					CheckPoint checkPoint = new CheckPoint(j * 30 + x, i * 30, 30, 30,
+							new ImageIcon("image/checkpoint.png").getImage());
 					checkPointList.add(checkPoint);
 				}
 			}
@@ -217,10 +221,10 @@ public class GameFrame extends JFrame {
 				big.drawImage(e.img, e.x, e.y, e.width, e.height, null);
 			}
 
-			//绘制检查点
-			for (int i=0; i<checkPointList.size(); i++){
+			// 绘制检查点
+			for (int i = 0; i < checkPointList.size(); i++) {
 				CheckPoint c = checkPointList.get(i);
-				big.drawImage(c.img, c.x, c.y, c.width, c.height,null);
+				big.drawImage(c.img, c.x, c.y, c.width, c.height, null);
 			}
 
 			// 画子弹
@@ -251,37 +255,26 @@ public class GameFrame extends JFrame {
 				big.drawImage(luigi.img, luigi.x, luigi.y, luigi.width, luigi.height, null);
 
 			// 画金币数量标签
-			Color c = big.getColor();
-			big.setColor(Color.black);
-			big.drawString("Coins:" + mario.coinNum, 50, 50);
-			big.setColor(c);
 
-			// 画死亡消息
-			if (mario.isDead && (!isMultiplayer || (isMultiplayer && luigi.isDead))) {
-				c = big.getColor();
-				big.setColor(Color.red);
-				big.drawString("You are dead, Please press R", 300, 220);
+				Color c = big.getColor();
+				big.setColor(Color.black);
+				big.drawString("Coins:" + mario.coinNum, 50, 50);
 				big.setColor(c);
+
+				// 画死亡消息
+				if (mario.isDead && (!isMultiplayer || (isMultiplayer && luigi.isDead))) {
+					big.drawImage((new ImageIcon("image/revive.png")).getImage(),300,200,null);
+				}
+
+				// 画胜利消息
+				if (!isMultiplayer && mario.isWin) {
+					big.drawImage((new ImageIcon("image/nextlevel.png")).getImage(),300,200,null);
+				} else if (isMultiplayer && mario.isWin && luigi.isWin) {
+					big.drawImage((new ImageIcon("image/nextlevel.png")).getImage(),300,200,null);
+				} else if ((isMultiplayer && luigi.isWin && mario.isDead)
+						|| (isMultiplayer && luigi.isDead && mario.isWin)) {
+				big.drawImage((new ImageIcon("image/partwon.png")).getImage(),300,200,null);
 			}
-
-			// 画胜利消息
-			if (!isMultiplayer&&mario.isWin) {
-				c = big.getColor();
-				big.setColor(Color.yellow);
-				big.drawString("You won, Press R to restart", 300, 220);
-				big.setColor(c);
-			}else if(isMultiplayer&&mario.isWin&&luigi.isWin){
-				c = big.getColor();
-				big.setColor(Color.yellow);
-				big.drawString("Both of you won, Press R to restart", 300, 220);
-				big.setColor(c);
-			}else if((isMultiplayer && luigi.isWin && mario.isDead) || (isMultiplayer && luigi.isDead && mario.isWin)){
-				c = big.getColor();
-				big.setColor(Color.yellow);
-				big.drawString("Only one of you won, Press R to restart", 300, 220);
-				big.setColor(c);
-			}
-
 			g.drawImage(bi, 0, 0, null);
 		} catch (Exception e) {
 			System.out.println("Loading map...");

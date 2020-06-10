@@ -218,6 +218,12 @@ public class Mario {
 		};
 	}
 
+	public void setPosition(int x,int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+
 	public void createJumpThread(double speed) {
 		this.jumpThread = new Thread() {
 			public void run() {

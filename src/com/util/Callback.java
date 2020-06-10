@@ -1,5 +1,7 @@
 package com.util;
 
 public interface Callback {
-    public void execute();
+    default public void exit(){};
+    default public void enter(){};
+    default public void runLevel(int level, boolean isMultiplayer,boolean fromGame){};
 }

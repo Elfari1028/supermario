@@ -33,16 +33,14 @@ public class KeyListener extends KeyAdapter {
 				gf.mario.left = true;
 				break;
 			case 66: // B 单人模式加Mario子弹 对人为Luigi
-				if (!gf.mario.isDead && !gf.isMultiplayer)
-					gf.mario.addBoom();
-				else if (gf.isMultiplayer && !gf.luigi.isDead)
+				if (gf.isMultiplayer && !gf.luigi.isDead)
 					gf.luigi.addBoom();
 				break;
-			case 77:
-				if (gf.isMultiplayer && !gf.mario.isDead)
+			case 77: // 'M'
+				if (!gf.mario.isDead)
 					gf.mario.addBoom();
 				break;
-				// 向上跳
+			// 向上跳
 			case 38:
 				gf.mario.up = true;
 				break;
@@ -65,7 +63,13 @@ public class KeyListener extends KeyAdapter {
 				break;
 			case 0x1B:
 				gf.removeKeyListener(this);
-				callback.execute();
+				callback.exit();
+				break;
+			case 10:
+				if (gf.level < 3 && (gf.mario.isWin || (gf.luigi!=null&&gf.luigi.isWin))) {
+					gf.removeKeyListener(this);
+					callback.runLevel(gf.level + 1, gf.isMultiplayer, true);
+				}
 		}
 	}
 
@@ -104,5 +108,4 @@ public class KeyListener extends KeyAdapter {
 
 		}
 	}
-
 }
