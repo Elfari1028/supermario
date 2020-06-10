@@ -302,13 +302,28 @@ public class Mario {
 			if (myrect.intersects(rect) && !isDead && !c.isActive) {
 				c.isActive = true;
 				c.img = new ImageIcon("image/checkpoint_active.png").getImage();
-				//设置复活坐标为检查点
-				reviveX = 180;
-				//稍微向上设置一些，防止卡住
-				reviveY = c.y - 10;
-				reviveMapX = gf.bg.x - (c.x - 180);
-				coinRecord=coinNum;
-				bigRecord=isBig;
+
+				if (!gf.isMultiplayer){//单人模式只需要自己修改复活参数
+					//设置复活坐标为检查点
+					reviveX = 180;
+					//稍微向上设置一些，防止卡住
+					reviveY = c.y - 10;
+					reviveMapX = gf.bg.x - (c.x - 180);
+					coinRecord=coinNum;
+					bigRecord=isBig;
+				}else {
+					gf.mario.reviveX = 180;
+					gf.mario.reviveY = c.y - 10;
+					gf.mario.coinRecord=coinNum;
+					gf.mario.bigRecord=isBig;
+
+					gf.luigi.reviveX = 180;
+					gf.luigi.reviveY = c.y-10;
+					gf.luigi.coinRecord = coinNum;
+					gf.luigi.bigRecord = gf.luigi.isBig;
+
+					reviveMapX = gf.bg.x - (c.x - 180);
+				}
 			}
 		}
 	}

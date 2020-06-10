@@ -242,7 +242,13 @@ public class GameFrame extends JFrame {
 
 				Color c = big.getColor();
 				big.setColor(Color.black);
-				big.drawString("Coins:" + mario.coinNum, 50, 50);
+				if (isMultiplayer){
+					int tem = mario.coinNum+luigi.coinNum;
+					big.drawString("Coins:" + tem, 50, 50);
+				}else {
+					big.drawString("Coins:" + mario.coinNum, 50, 50);
+				}
+
 				big.setColor(c);
 
 				// 画死亡消息
