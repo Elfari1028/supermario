@@ -41,6 +41,7 @@ public class GameFrame extends JFrame {
 	public GameFrame(int level,String mapName, boolean isMultiplayer) throws Exception {
 		// 初始化窗体相关属性信息数据
 		// this代表了当前主界面对象。
+		this.level = level;
 		this.setSize(800, 450);
 		this.setTitle("Mario");
 		this.setResizable(false);
@@ -56,7 +57,8 @@ public class GameFrame extends JFrame {
 			luigi = new Mario(this);
 		// 创建背景图片
 		bg = new BackgroundImage();
-
+		if(level == 0)
+			bg = new BackgroundImage("image/tutorialBack.png");
 		// 读取地图
 		this.map = Map.readMap(mapName);
 

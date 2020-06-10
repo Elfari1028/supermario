@@ -6,6 +6,10 @@ import javax.swing.ImageIcon;
 
 public class BackgroundImage {
 	
+	public BackgroundImage(String name){
+		img = new ImageIcon(name).getImage();
+	}
+	public BackgroundImage(){};
 	public int x=0,y=0;
 	public Image img=new ImageIcon("image/startBack.jpg").getImage();
 	static public Image getImage(String str) {return new ImageIcon(str).getImage();}

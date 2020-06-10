@@ -1,16 +1,10 @@
 package com.ui;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import javax.swing.*;
 
-import com.mario.Mario;
-import com.role.*;
 import com.util.Callback;
 import com.util.KeyListener;
-import com.util.Map;
-import com.util.MusicUtil;
+
 import com.util.UIFrameKeyListener;
 
 public class NavigatorFrame {
@@ -67,29 +61,36 @@ public class NavigatorFrame {
     }
 
     void runNewLevel(int level, boolean isMultiplayer, boolean fromGame) {
+        System.out.println(level);
         if (!fromGame) {
             levelFrame.setVisible(false);
             levelFrame.dispose();
             levelFrame = null;
-        } else {
+        }
+        if(gameFrame!=null){
             gameFrame.setVisible(false);
             gameFrame.dispose();
             gameFrame = null;
         }
         try {
             gameFrame = new GameFrame(level, "level" + Integer.toString(level) + "_map.txt", isMultiplayer);
+            System.out.println("r"+gameFrame.level);
+            gameFrame.addKeyListener(getKeyListener(gameFrame));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        gameFrame.addKeyListener(new KeyListener(gameFrame, new Callback() {
+        gameFrame.start();
+    }
+    public KeyListener getKeyListener (GameFrame frame){
+        System.out.println("q"+frame.level);
+        return new KeyListener(frame, new Callback() {
             public void runLevel(int level, boolean isMultiplayer,boolean fromGame) {
                 runNewLevel(level, isMultiplayer,fromGame);
             }
             public void exit() {
                 onGameEsc();
             }
-        }));
-        gameFrame.start();
+        });
     }
 
     public void onGameEsc() {
