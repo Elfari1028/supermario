@@ -97,7 +97,6 @@ public class GameFrame extends JFrame {
 					while (!Thread.currentThread().isInterrupted()) {
 						Thread.sleep(10000);
 					}
-					;
 				} catch (InterruptedException e) {
 
 				} finally {
@@ -105,6 +104,7 @@ public class GameFrame extends JFrame {
 				}
 			}
 		});
+		this.musicThread.start();
 	}
 
 	public void start() {
