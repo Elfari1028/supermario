@@ -5,6 +5,7 @@ import java.awt.*;
 import com.util.Callback;
 import com.util.KeyListener;
 
+import com.util.MusicUtil;
 import com.util.UIFrameKeyListener;
 
 public class NavigatorFrame {
@@ -13,6 +14,9 @@ public class NavigatorFrame {
     GameFrame gameFrame;
     StartPageFrame startFrame;
     LevelPageFrame levelFrame;
+
+    //音乐线程
+    public Thread musicThread;
 
     private NavigatorFrame() {
         initStart();
@@ -27,6 +31,23 @@ public class NavigatorFrame {
         try {
             startFrame = new StartPageFrame("background_map.txt");
             startFrame.addKeyListener(this.StartPageListener(startFrame));
+            // 设置背景音乐
+            this.musicThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    MusicUtil.playBackground();
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            Thread.sleep(1000);
+                        }
+                    } catch (InterruptedException e) {
+
+                    } finally {
+                        MusicUtil.stop();
+                    }
+                }
+            });
+            this.musicThread.start();
         } catch (Exception e) {
         }
     }

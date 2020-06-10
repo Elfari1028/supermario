@@ -141,6 +141,10 @@ public class Mario {
 									CheckPoint c = gf.checkPointList.get(i);
 									c.x +=xspeed;
 								}
+								//另一个马里奥移动
+								if (gf.isMultiplayer){
+									gf.luigi.x+=xspeed;
+								}
 								img = new ImageIcon("image/mari_left.gif").getImage();
 							} else {
 								if (x >= 0) {
@@ -185,6 +189,10 @@ public class Mario {
 								for (int i = 0; i < gf.checkPointList.size(); i++){
 									CheckPoint c = gf.checkPointList.get(i);
 									c.x -=xspeed;
+								}
+								//另一个马里奥移动
+								if (gf.isMultiplayer){
+									gf.luigi.x-=xspeed;
 								}
 								img = new ImageIcon("image/mari_right.gif").getImage();
 							} else {

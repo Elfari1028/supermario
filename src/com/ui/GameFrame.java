@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import com.mario.Mario;
+import com.mario.MarioChild;
 import com.role.*;
 import com.util.Map;
 import com.util.MusicUtil;
@@ -18,7 +19,7 @@ public class GameFrame extends JFrame {
 	public int level;
 	// 超级玛丽:界面需要一个超级玛丽的。
 	public Mario mario;
-	public Mario luigi;
+	public MarioChild luigi;
 
 	public boolean isMultiplayer;
 	// 背景图片
@@ -35,7 +36,6 @@ public class GameFrame extends JFrame {
 
 	// 线程对象，便利控制
 	public Thread repaintThread;
-	public Thread musicThread;
 
 	// 构造函数里面初始化背景图片和马里奥对象
 	public GameFrame(int level,String mapName, boolean isMultiplayer) throws Exception {
@@ -54,7 +54,7 @@ public class GameFrame extends JFrame {
 		// 创建玛丽对象
 		mario = new Mario(this);
 		if (isMultiplayer)
-			luigi = new Mario(this);
+			luigi = new MarioChild(this);
 		// 创建背景图片
 		bg = new BackgroundImage();
 		if(level == 0)
@@ -88,23 +88,7 @@ public class GameFrame extends JFrame {
 
 		};
 
-		// 设置背景音乐
-		this.musicThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				MusicUtil.playBackground();
-				try {
-					while (!Thread.currentThread().isInterrupted()) {
-						Thread.sleep(10000);
-					}
-				} catch (InterruptedException e) {
 
-				} finally {
-					MusicUtil.stop();
-				}
-			}
-		});
-		this.musicThread.start();
 	}
 
 	public void start() {
@@ -126,8 +110,6 @@ public class GameFrame extends JFrame {
 			this.luigi.dispose();
 		if (this.repaintThread != null && this.repaintThread.isAlive())
 			this.repaintThread.interrupt();
-		if (this.repaintThread != null && this.musicThread.isAlive())
-			this.musicThread.interrupt();
 		for (Enemy enemy : enemyList) {
 			enemy.dispose();
 		}

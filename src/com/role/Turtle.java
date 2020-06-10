@@ -34,7 +34,7 @@ public class Turtle extends Enemy {
                 while (!Thread.currentThread().isInterrupted()) {
                     if (isDead)
                         return;
-                    if (hit("Right")) {
+                    if (hit("Left")) {
                         speed = -speed;
                     }
 
@@ -54,23 +54,6 @@ public class Turtle extends Enemy {
         Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
 
         Rectangle rect = null;
-
-        // 乌龟只能被踩死
-        // //判断是否和子弹相撞
-        // for (Boom b : gf.boomList){
-        // if(dir.equals("Left")){
-        // rect = new Rectangle(b.x+5,b.y,b.width,b.width);
-        // }else if(dir.equals("Right")) {
-        // rect = new Rectangle(b.x-5,b.y,b.width,b.width);
-        // }
-        // //如果活的乌龟碰到子弹，死
-        // if (myrect.intersects(rect)&&!isDead){
-        // gf.boomList.remove(b);
-        // isDead = true;
-        // deadMove(2);
-        // return true;
-        // }
-        // }
 
         // 判断是否和其他障碍物相撞
         for (int i = 0; i < gf.enemyList.size(); i++) {
