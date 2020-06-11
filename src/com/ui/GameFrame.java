@@ -253,17 +253,17 @@ public class GameFrame extends JFrame {
 
 				// 画死亡消息
 				if (mario.isDead && (!isMultiplayer || (isMultiplayer && luigi.isDead))) {
-					big.drawImage((new ImageIcon("image/revive.png")).getImage(),300,200,null);
+					big.drawImage((new ImageIcon("image/revive.png")).getImage(),250,170,null);
 				}
 
 				// 画胜利消息
 				if (!isMultiplayer && mario.isWin) {
-					big.drawImage((new ImageIcon("image/nextlevel.png")).getImage(),300,200,null);
+					big.drawImage((new ImageIcon("image/nextlevel.png")).getImage(),250,170,null);
 				} else if (isMultiplayer && mario.isWin && luigi.isWin) {
-					big.drawImage((new ImageIcon("image/nextlevel.png")).getImage(),300,200,null);
+					big.drawImage((new ImageIcon("image/nextlevel.png")).getImage(),250,170,null);
 				} else if ((isMultiplayer && luigi.isWin && mario.isDead)
 						|| (isMultiplayer && luigi.isDead && mario.isWin)) {
-				big.drawImage((new ImageIcon("image/partwon.png")).getImage(),300,200,null);
+				big.drawImage((new ImageIcon("image/partwon.png")).getImage(),250,170,null);
 			}
 			g.drawImage(bi, 0, 0, null);
 		} catch (Exception e) {

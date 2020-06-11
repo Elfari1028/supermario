@@ -47,7 +47,8 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 
 		// 创建玛丽对象
 		mario = new MarioForDisplay(this);
-			luigi = new MarioForDisplay(this);
+		luigi = new MarioForDisplay(this);
+		luigi.setPosition(600, 200);
 		// 创建背景图片
 		bg = new BackgroundImage();
 
@@ -76,24 +77,6 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 			}
 
 		};
-
-		// 设置背景音乐
-		this.musicThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				MusicUtil.playBackground();
-				try {
-					while (!Thread.currentThread().isInterrupted()) {
-						Thread.sleep(10000);
-					}
-					;
-				} catch (InterruptedException e) {
-
-				} finally {
-					MusicUtil.stop();
-				}
-			}
-		});
 	}
 
 	public void start() {
@@ -108,8 +91,6 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 		this.luigi.dispose();
 		if (this.repaintThread != null && this.repaintThread.isAlive())
 			this.repaintThread.interrupt();
-		if (this.repaintThread != null && this.musicThread.isAlive())
-			this.musicThread.interrupt();
 		for (Enemy enemy : enemyList) {
 			enemy.dispose();
 		}
@@ -183,11 +164,8 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 
 			big.drawImage(mario.img, mario.x, mario.y, mario.width, mario.height, null);
 			big.drawImage(luigi.img, luigi.x, luigi.y, luigi.width, luigi.height, null);
-
-
 			this.addPainter(big);
             g.drawImage(bi, 0, 0, null);
-            
 		} catch (Exception e) {
 			System.out.println("Loading map...");
 		}

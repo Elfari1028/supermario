@@ -29,7 +29,7 @@ public class MarioForDisplay {
 	// 马里奥朝左还是朝右
 	public boolean isFaceRight = true;
 	// 马里奥移动标志
-	public boolean left = false, right = false, down = false, up = false;
+	public boolean left = false, right = false, down = false, up = true;
 
 	public boolean forDisplayOnly;
 	public String Dir_Up = "Up", Dir_Left = "Left", Dir_Right = "Right", Dir_Down = "Down";
@@ -37,7 +37,6 @@ public class MarioForDisplay {
 	Thread jumpThread;
 	Thread runThread;
 	Thread gravityThread;
-
 	public MarioForDisplay(UIFrame frame) {
 		this.gf = frame;
 	}
@@ -63,81 +62,6 @@ public class MarioForDisplay {
 		this.runThread = new Thread() {
 			public void run() {
 				while (!Thread.currentThread().isInterrupted()) {
-					// 向左走
-					if (left) {
-						isFaceRight = false;
-						// 碰撞到了
-						if (hit(Dir_Left)) {
-							xspeed = 0;
-						}
-
-						// 任人物向左移动
-						if (x >= 200) {
-							x -= xspeed;
-							img = new ImageIcon("image/mari_left.gif").getImage();
-						}
-
-						if (x < 200) {
-							if (gf.bg.x < mapLeft) {
-								// 背景向右移动
-								gf.bg.x += xspeed;
-								// 障碍物项右移动
-								for (int i = 0; i < gf.enemyList.size(); i++) {
-									Enemy enemy = gf.enemyList.get(i);
-									enemy.x += xspeed;
-								}
-
-								img = new ImageIcon("image/mari_left.gif").getImage();
-							} else {
-								if (x >= 0) {
-									x -= xspeed;
-									img = new ImageIcon("image/mari_left.gif").getImage();
-								}
-							}
-						}
-						xspeed = 5;
-					}
-
-					// 向右走
-					else if (right) {
-						isFaceRight = true;
-						// 右边碰撞物检测应该是往右走的时候检测
-						// 进行碰撞检测：至少主角（玛丽，碰撞物）
-						if (hit(Dir_Right)) {
-							xspeed = 0;
-						}
-
-						// 任人物向右移动
-						if (x < 550) {
-							x += xspeed;
-							img = new ImageIcon("image/mari_right.gif").getImage();
-						}
-
-						if (x >= 550) {
-							if ((800 - gf.bg.x) < mapRight) {
-								// 背景向左移动
-								gf.bg.x -= xspeed;
-								// 障碍物项左移动
-								for (int i = 0; i < gf.enemyList.size(); i++) {
-									Enemy enemy = gf.enemyList.get(i);
-									enemy.x -= xspeed;
-								}
-
-								img = new ImageIcon("image/mari_right.gif").getImage();
-							} else {
-								if (x <= 770) {
-									x += xspeed;
-									img = new ImageIcon("image/mari_right.gif").getImage();
-								}
-							}
-						}
-						xspeed = 5;
-					} else {// 即没有向左走，又没向右走
-						hit(Dir_Right);
-						hit(Dir_Left);
-					}
-
-					// 向上跳
 					if (up) {
 						if (jumpFlag) {
 							jumpFlag = false;
@@ -220,7 +144,6 @@ public class MarioForDisplay {
 
 		Rectangle rect = null;
 
-		// 检测是否碰到障碍物
 		for (int i = 0; i < gf.enemyList.size(); i++) {
 			Enemy enemy = gf.enemyList.get(i);
 			if (enemy == null)
@@ -235,9 +158,8 @@ public class MarioForDisplay {
 				rect = new Rectangle(enemy.x, enemy.y - 5, enemy.width, enemy.height);
 			}
 			// 碰撞检测
-			return true;
+			if(myrect.intersects(rect))return true;
 		}
-
 		return false;
 	}
 
