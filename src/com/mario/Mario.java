@@ -66,8 +66,19 @@ public class Mario {
 	public void revive() {
 			//没有胜利复活，金币数量等于存档时的金币数量，大小等于存档的大小，并且不能往地图走
 			//胜利复活，金币=0，大小正常，回到原点
-			coinNum = isWin?0:coinRecord;
-			isBig = isWin?false:bigRecord;
+			if (!gf.isMultiplayer){//单人
+				coinNum = isWin?0:coinRecord;
+				isBig = isWin?false:bigRecord;
+			}else {
+				if(gf.mario.isWin&&gf.luigi.isWin){
+					coinNum = 0;
+					isBig = false;
+				}
+				coinNum = coinRecord;
+				isBig = bigRecord;
+			}
+
+
 			if (isBig){
 				width = 30;
 				height = 36;
@@ -314,15 +325,16 @@ public class Mario {
 				}else {
 					gf.mario.reviveX = 180;
 					gf.mario.reviveY = c.y - 10;
-					gf.mario.coinRecord=coinNum;
-					gf.mario.bigRecord=isBig;
+					gf.mario.coinRecord=gf.mario.coinNum;
+					gf.mario.bigRecord=gf.mario.isBig;
+					gf.mario.reviveMapX=gf.bg.x - (c.x - 180);
 
 					gf.luigi.reviveX = 180;
 					gf.luigi.reviveY = c.y-10;
-					gf.luigi.coinRecord = coinNum;
+					gf.luigi.coinRecord = gf.luigi.coinNum;
 					gf.luigi.bigRecord = gf.luigi.isBig;
+					gf.luigi.reviveMapX = gf.bg.x - (c.x - 180);
 
-					reviveMapX = gf.bg.x - (c.x - 180);
 				}
 			}
 		}
@@ -436,8 +448,6 @@ public class Mario {
 						reviveX = 180;
 						reviveY = 200;
 						reviveMapX = 0;
-						coinRecord = 0;
-						bigRecord = false;
 					}
 
 					return true;
