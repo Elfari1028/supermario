@@ -7,11 +7,19 @@ import com.ui.GameFrame;
 
 import javax.swing.*;
 
+/*** 子马里奥类
+ * @author 刘坤昊
+ * @version 3
+ * 继承马里奥类，用于双人模式下另一个角色，重写initRun()方法
+ */
 public class MarioChild extends Mario {
     public MarioChild(GameFrame gf){
         super(gf);
     }
 
+    /**
+     * 子马里奥重写移动函数
+     */
     public void initRun() {
         this.runThread = new Thread() {
             public void run() {

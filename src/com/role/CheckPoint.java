@@ -1,6 +1,11 @@
 package com.role;
 import java.awt.Image;
 
+/*** 检查点类
+ * @author 刘坤昊
+ * @version 4
+ * 检查点的属性和构造方法
+ */
 public class CheckPoint {
     public int x, y;
     public int width, height;

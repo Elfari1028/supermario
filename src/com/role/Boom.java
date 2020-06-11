@@ -4,8 +4,10 @@ import com.ui.GameFrame;
 
 import java.awt.*;
 
-/*
-  子弹类
+/*** 子弹类
+ * @author 刘坤昊
+ * @version 4
+ * 规定子弹的属性和方法
  */
 public class Boom {
 	// 子弹的坐标，大小，速度
@@ -21,6 +23,9 @@ public class Boom {
 		this.gf = gf;
 	}
 
+	/**
+	 * 检测碰撞
+	 */
 	public boolean hit() {
 
 		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.width);

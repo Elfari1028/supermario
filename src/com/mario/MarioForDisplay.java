@@ -7,7 +7,11 @@ import javax.swing.ImageIcon;
 import com.role.*;
 import com.ui.UIFrame;
 
-//自己的角色类
+/*** 展示马里奥类
+ * @author 艾力帕尔
+ * @version 1
+ * 用于初始界面和关卡展示界面的马里奥
+ */
 public class MarioForDisplay {
 
 	public UIFrame gf;
@@ -41,6 +45,9 @@ public class MarioForDisplay {
 		this.gf = frame;
 	}
 
+	/**
+	 * 用于启动马里奥的线程
+	 */
 	public void start() {
 		this.initGravity();
 		this.initRun();
@@ -48,6 +55,9 @@ public class MarioForDisplay {
 		this.gravityThread.start();
 	}
 
+	/**
+	 * 用于停止该类的线程
+	 */
 	public void dispose() {
 		if (this.jumpThread != null && this.jumpThread.isAlive())
 			this.jumpThread.interrupt();
@@ -57,7 +67,9 @@ public class MarioForDisplay {
 			this.gravityThread.interrupt();
 	}
 
-	// 玛丽移动的逻辑
+	/**
+	 * 用于马里奥移动
+	 */
 	public void initRun() {
 		this.runThread = new Thread() {
 			public void run() {
@@ -79,6 +91,9 @@ public class MarioForDisplay {
 		};
 	}
 
+	/**
+	 * 设定马里奥位置
+	 */
 	public void setPosition(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -94,7 +109,9 @@ public class MarioForDisplay {
 		this.jumpThread.start();
 	}
 
-	// 向上跳的函数
+	/**
+	 * 用于马里奥跳跃
+	 */
 	public void jump(double speed) {
 
 		for (int i = 0; i < 1000; i++) {
@@ -137,7 +154,9 @@ public class MarioForDisplay {
 
 	}
 
-	// 检测碰撞
+	/**
+	 * 检测碰撞
+	 */
 	public boolean hit(String dir) {
 
 		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
@@ -163,7 +182,9 @@ public class MarioForDisplay {
 		return false;
 	}
 
-	// 重力线程
+	/**
+	 * 重力线程
+	 */
 	public void initGravity() {
 		this.gravityThread = new Thread() {
 			public void run() {

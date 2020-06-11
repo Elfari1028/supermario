@@ -7,7 +7,11 @@ import javax.swing.ImageIcon;
 import com.role.*;
 import com.ui.GameFrame;
 
-//自己的角色类
+/*** 马里奥类
+ * @author 刘坤昊
+ * @version 3
+ * 规定角色的基本属性和方法
+ */
 public class Mario {
 
 	public GameFrame gf;
@@ -55,6 +59,9 @@ public class Mario {
 		this.gf = gf;
 	}
 
+	/**
+	 * 用于启动马里奥的线程
+	 */
 	public void start() {
 		this.initGravity();
 		this.initRun();
@@ -62,7 +69,9 @@ public class Mario {
 		this.gravityThread.start();
 	}
 
-	// 重生
+	/**
+	 * 用于马里奥重生
+	 */
 	public void revive() {
 			//没有胜利复活，金币数量等于存档时的金币数量，大小等于存档的大小，并且不能往地图走
 			//胜利复活，金币=0，大小正常，回到原点
@@ -98,13 +107,18 @@ public class Mario {
 			isDead = false;
 	}
 
+	/**
+	 * 用于停止该类的线程
+	 */
 	public void dispose() {
 		if(this.jumpThread != null && this.jumpThread.isAlive()) this.jumpThread.interrupt();
 		if(this.runThread != null && this.runThread.isAlive())this.runThread.interrupt();
 		if(this.gravityThread != null && this.gravityThread.isAlive())this.gravityThread.interrupt();
 	}
 
-	// 玛丽移动的逻辑
+	/**
+	 * 用于马里奥移动
+	 */
 	public void initRun() {
 		this.runThread = new Thread() {
 			public void run() {
@@ -253,7 +267,9 @@ public class Mario {
 		this.jumpThread.start();
 	}
 
-	// 向上跳的函数
+	/**
+	 * 用于马里奥跳跃
+	 */
 	public void jump(double speed) {
 
 		for (int i = 0; i < 1000; i++) {
@@ -300,7 +316,9 @@ public class Mario {
 
 	}
 
-	// 检测是否与检查点相交（如果放在碰撞函数里，可能会出现穿模bug）
+	/**
+	 * 检测是否与检查点碰撞（如果放在碰撞函数里，可能会出现穿模bug）
+	 */
 	public void hitCheckPoint(){
 		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
 		Rectangle rect = null;
@@ -340,7 +358,9 @@ public class Mario {
 		}
 	}
 
-	// 检测碰撞
+	/**
+	 * 检测是否与障碍物碰撞
+	 */
 	public boolean hit(String dir) {
 
 		Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
@@ -461,7 +481,9 @@ public class Mario {
 		return false;
 	}
 
-	// 马里奥死亡动画
+	/**
+	 * 马里奥死亡动画
+	 */
 	public void deadMove(double speed) throws InterruptedException {
 		// 无碰撞检测
 		for (int i = 0; i < 1000; i++) {
@@ -486,7 +508,9 @@ public class Mario {
 		}
 	}
 
-	// 重力线程
+	/**
+	 * 重力线程
+	 */
 	public void initGravity() {
 		this.gravityThread = new Thread() {
 			public void run() {
@@ -543,7 +567,9 @@ public class Mario {
 		};
 	}
 
-	// 添加子弹
+	/**
+	 * 添加子弹
+	 */
 	public void addBoom() {
 		Boom b = new Boom(x, y + 5, 10, gf);
 		b.speed = isFaceRight ? 4 : -4;

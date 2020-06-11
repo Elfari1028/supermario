@@ -5,6 +5,12 @@ import com.ui.GameFrame;
 import javax.swing.*;
 import java.awt.*;
 
+
+/*** 蜜蜂类
+ * @author 刘坤昊
+ * @version 4
+ * 规定敌人蜜蜂的属性和方法
+ */
 public class Bee extends Enemy {
     public double g = 0.15;
     double speed;
@@ -26,6 +32,9 @@ public class Bee extends Enemy {
         this.initMove();
     }
 
+    /**
+     * 停止该类的线程
+     */
     public void dispose() {
         if (this.moveThread != null && this.moveThread.isAlive())
             this.moveThread.interrupt();
@@ -35,7 +44,9 @@ public class Bee extends Enemy {
         this.moveThread.start();
     }
 
-    // 移动线程
+    /**
+     * 移动线程
+     */
     public void initMove() {
         this.moveThread = new Thread() {
             public void run() {
@@ -73,7 +84,9 @@ public class Bee extends Enemy {
         };
     }
 
-    // 碰撞函数
+    /**
+     * 检测是否碰撞
+     */
     public boolean hit(String dir) throws InterruptedException {
 
         Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
@@ -128,7 +141,9 @@ public class Bee extends Enemy {
         return false;
     }
 
-    // 死亡动画
+    /**
+     * 死亡动画
+     */
     public void deadMove(double speed) throws InterruptedException {
         // 无碰撞检测
         for (int i = 0; i < 1000; i++) {
@@ -157,7 +172,9 @@ public class Bee extends Enemy {
 
     }
 
-    // 受伤动画
+    /**
+     * 受伤动画
+     */
     public void hurt() {
         new Thread() {
             public void run() {
@@ -172,7 +189,9 @@ public class Bee extends Enemy {
         }.start();
     }
 
-    // 发射子弹
+    /**
+     * 发射子弹
+     */
     public void addBeeBoom() {
         Beeboom b1 = new Beeboom(x, y, 10, 2, -3, gf);
         Beeboom b2 = new Beeboom(x, y, 10, -2, -3, gf);

@@ -8,7 +8,11 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 
-//键盘按下监听类
+/*** 键盘监听类
+ * @author 艾力帕尔
+ * @version 5
+ * 用于在游戏界面监听用户输入
+ */
 public class KeyListener extends KeyAdapter {
 
 	// 接收到了当前主界面：游戏界面
@@ -20,7 +24,9 @@ public class KeyListener extends KeyAdapter {
 		this.callback = escCallback;
 	}
 
-	// 键盘监听
+	 /**
+	 * 键盘监听
+	 */
 	public void keyPressed(KeyEvent e) {
 		int code = e.getKeyCode();
 		switch (code) {
@@ -73,7 +79,9 @@ public class KeyListener extends KeyAdapter {
 		}
 	}
 
-	// 键盘释放监听
+	/**
+	 * 键盘释放监听
+	 */
 	public void keyReleased(KeyEvent e) {
 		int code = e.getKeyCode();
 		switch (code) {

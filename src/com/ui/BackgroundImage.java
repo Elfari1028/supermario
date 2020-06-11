@@ -4,6 +4,10 @@ import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
+/*** 背景图片类
+ * @author 刘坤昊
+ * @version 1
+ */
 public class BackgroundImage {
 	
 	public BackgroundImage(String name){

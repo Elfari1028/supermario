@@ -5,6 +5,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.io.File;
 
+/*** 音乐播放类
+ * @author 艾力帕尔
+ * @version 1
+ * 用于播放背景音乐
+ */
 public class MusicUtil {
     private static Clip clip;
     static {

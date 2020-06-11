@@ -8,6 +8,11 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 
+/*** UI界面键盘监听类
+ * @author 艾力帕尔
+ * @version 5
+ * 用于在开始界面、关卡选择界面监听用户输入
+ */
 public class UIFrameKeyListener extends KeyAdapter {
 
     // 接收到了当前主界面：游戏界面
@@ -21,7 +26,9 @@ public class UIFrameKeyListener extends KeyAdapter {
         this.callback = callback;
     }
 
-    // 键盘监听
+    /**
+     * 键盘监听
+     */
     public void keyPressed(KeyEvent e) {
 
         int code = e.getKeyCode();
@@ -61,7 +68,9 @@ public class UIFrameKeyListener extends KeyAdapter {
             }
     }
 
-    // 键盘释放监听
+    /**
+     * 键盘释放监听
+     */
     public void keyReleased(KeyEvent e) { }
 
 }

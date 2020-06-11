@@ -4,7 +4,11 @@ import com.ui.GameFrame;
 
 import java.awt.Image;
 
-//障碍物的抽象父类
+/*** 障碍物的抽象父类
+ * @author 刘坤昊
+ * @version 3
+ * 障碍物的基本属性和构造方法
+ */
 public abstract class Enemy {
 	public int x, y;
 	public int width, height;

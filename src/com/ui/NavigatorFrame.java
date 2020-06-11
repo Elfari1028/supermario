@@ -8,6 +8,11 @@ import com.util.KeyListener;
 import com.util.MusicUtil;
 import com.util.UIFrameKeyListener;
 
+/*** 导航界面
+ * @author 艾力帕尔
+ * @version 5
+ * 用于开始界面、关卡选择界面
+ */
 public class NavigatorFrame {
     public static NavigatorFrame instance = new NavigatorFrame();
 
@@ -115,6 +120,9 @@ public class NavigatorFrame {
         });
     }
 
+    /**
+     * 按esc返回
+     */
     public void onGameEsc() {
         gameFrame.setVisible(false);
         gameFrame.dispose();

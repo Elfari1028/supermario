@@ -4,6 +4,11 @@ import com.ui.GameFrame;
 
 import java.awt.*;
 
+/*** 乌龟类
+ * @author 刘坤昊
+ * @version 5
+ * 规定乌龟的基本属性和方法
+ */
 public class Turtle extends Enemy {
     public double g = 0.15;
     double speed;
@@ -17,6 +22,9 @@ public class Turtle extends Enemy {
         this.initMove();
     }
 
+    /**
+     * 停止该类的线程
+     */
     @Override
     public void dispose() {
         if (this.moveThread != null && this.moveThread.isAlive())
@@ -27,7 +35,9 @@ public class Turtle extends Enemy {
         this.moveThread.start();
     }
 
-    // 移动线程
+    /**
+     * 移动线程
+     */
     public void initMove() {
         this.moveThread = new Thread() {
             public void run() {
@@ -49,7 +59,9 @@ public class Turtle extends Enemy {
         };
     }
 
-    // 检测碰撞
+    /**
+     * 碰撞检测
+     */
     public boolean hit(String dir) {
         Rectangle myrect = new Rectangle(this.x, this.y, this.width, this.height);
 
@@ -76,7 +88,9 @@ public class Turtle extends Enemy {
         return false;
     }
 
-    // 死亡动画
+    /**
+     * 死亡动画
+     */
     public void deadMove(double speed) throws InterruptedException {
         // 无碰撞检测
         for (int i = 0; i < 1000; i++) {

@@ -11,8 +11,10 @@ import com.role.*;
 import com.util.Map;
 import com.util.MusicUtil;
 
-/*
-   主体窗口界面：展示角色。
+/*** 游戏界面
+ * @author 刘坤昊
+ * @version 5
+ * 用于加载地图、绘制窗口
  */
 @SuppressWarnings("serial")
 public class GameFrame extends JFrame {
@@ -37,7 +39,9 @@ public class GameFrame extends JFrame {
 	// 线程对象，便利控制
 	public Thread repaintThread;
 
-	// 构造函数里面初始化背景图片和马里奥对象
+	/**
+	 * 构造函数里面初始化背景图片和马里奥对象
+	 */
 	public GameFrame(int level,String mapName, boolean isMultiplayer) throws Exception {
 		// 初始化窗体相关属性信息数据
 		// this代表了当前主界面对象。
@@ -104,6 +108,9 @@ public class GameFrame extends JFrame {
 
 	}
 
+	/**
+	 * 停止该类的线程
+	 */
 	public void dispose() {
 		this.mario.dispose();
 		if (isMultiplayer)
@@ -115,7 +122,10 @@ public class GameFrame extends JFrame {
 		}
 	}
 
-	// x表示初始时的偏移量，用于适配检查点复活
+	/**
+	 * 加载地图
+	 * x表示初始时的偏移量，用于适配检查点复活
+	 */
 	public void loadMap(int x) {
 
 		// 分别定义:水管，金币,砖块，蘑菇，地刺
@@ -191,6 +201,9 @@ public class GameFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 绘制所有元素
+	 */
 	public void paint(Graphics g) {
 		try {
 			// 利用双缓冲画背景图片和马里奥
@@ -273,7 +286,9 @@ public class GameFrame extends JFrame {
 
 	}
 
-	// 检查子弹是否出界，出界则从容器中移除
+	/**
+	 * 检测子弹是否出界
+	 */
 	public void checkBoom() {
 		for (int i = 0; i < boomList.size(); i++) {
 			Boom b = boomList.get(i);

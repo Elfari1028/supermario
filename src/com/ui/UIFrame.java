@@ -11,8 +11,10 @@ import com.util.PainterCallback;
 import com.util.Map;
 import com.util.MusicUtil;
 
-/*
-   主体窗口界面：展示角色。
+/*** UI界面父类
+ * @author 艾力帕尔
+ * @version 5
+ * 为关卡选择界面、开始界面提供初始属性和方法
  */
 @SuppressWarnings("serial")
 public abstract class UIFrame extends JFrame implements PainterCallback{
@@ -34,7 +36,9 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 	public Thread repaintThread;
     public Thread musicThread;
 
-	// 构造函数里面初始化背景图片和马里奥对象
+	/**
+	 * 构造函数里面初始化背景图片和马里奥对象
+	 */
 	public UIFrame(String mapName) throws Exception {
 		// 初始化窗体相关属性信息数据
 		// this代表了当前主界面对象。
@@ -86,6 +90,9 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 		repaintThread.start();
 	}
 
+	/**
+	 * 停止该类的线程
+	 */
 	public void dispose() {
 		this.mario.dispose();
 		this.luigi.dispose();
@@ -96,7 +103,9 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 		}
 	}
 
-	// x表示初始时的偏移量，用于适配检查点复活
+	/**
+	 * 加载地图
+	 */
 	public void loadMap(int x) {
 
 		// 分别定义:水管，金币,砖块，蘑菇，地刺
@@ -146,6 +155,9 @@ public abstract class UIFrame extends JFrame implements PainterCallback{
 		}
 	}
 
+	/**
+	 * 绘制所有元素
+	 */
 	public void paint(Graphics g) {
 		try {
 			// 利用双缓冲画背景图片和马里奥
